@@ -107,6 +107,10 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'golem.p2p': {
+            'level': 'INFO',
+            'propagate': True,
+        },
         'golem.rpc.crossbar': {
             'level': 'INFO',
             'propagate': True,
