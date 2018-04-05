@@ -441,10 +441,15 @@ class TaskHeaderKeeper:
 
             self.check_correct(th_dict_repr)
 
-            if id_ in list(self.removed_tasks.keys()):  # recent
+            data_tuple = self.removed_tasks.get(id_)
+            if data_tuple:  # recent
+                task_header = data_tuple[1]
                 logger.info("Received a task which has been already "
                             "cancelled/removed/timeout/banned/etc "
-                            "Task id %s .", id_)
+                            "Task id %s , received from %r (%r:%r)", id_,
+                            task_header.node_name,
+                            task_header.task_owner_address,
+                            task_header.task_owner_port)
                 return True
 
             th = TaskHeader.from_dict(th_dict_repr)
@@ -520,6 +525,8 @@ class TaskHeaderKeeper:
         if task_id in self.removed_tasks:
             return False
 
+        task_header = self.task_headers.get(task_id)
+
         if task_id in self.task_headers:
             owner_key_id = self.task_headers[task_id].task_owner_key_id
             del self.task_headers[task_id]
@@ -529,7 +536,7 @@ class TaskHeaderKeeper:
             self.supported_tasks.remove(task_id)
         if task_id in self.support_status:
             del self.support_status[task_id]
-        self.removed_tasks[task_id] = time.time()
+        self.removed_tasks[task_id] = time.time(), task_header
         return True
 
     def get_owner(self, task_id) -> typing.Optional[str]:
@@ -559,7 +566,8 @@ class TaskHeaderKeeper:
                                t.task_owner_key_id, t.task_id)
                 self.remove_task_header(t.task_id)
 
-        for task_id, remove_time in list(self.removed_tasks.items()):
+        for task_id, data_tuple in list(self.removed_tasks.items()):
+            remove_time, _ = data_tuple
             cur_time = time.time()
             if cur_time - remove_time > self.removed_task_timeout:
                 del self.removed_tasks[task_id]
