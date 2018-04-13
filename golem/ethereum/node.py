@@ -20,30 +20,12 @@ from golem.utils import tee_target
 log = logging.getLogger('golem.ethereum')
 
 
-TESTNET_NODE_LIST = [
-    'https://rinkeby.golem.network:55555',
-    'http://188.165.227.180:55555',
-    'http://94.23.17.170:55555',
-    'http://94.23.57.58:55555',
-]
-
-MAINNET_NODE_LIST = [
-    'https://geth.golem.network:55555',
-    'https://0.geth.golem.network:55555',
-    'https://1.geth.golem.network:55555',
-    'https://2.geth.golem.network:55555',
-]
-
-
-def get_public_nodes(mainnet: bool):
+def get_public_nodes():
     """Returns public geth RPC addresses"""
-    if mainnet:
-        addr_list = MAINNET_NODE_LIST[:]
-    else:
-        addr_list = TESTNET_NODE_LIST[:]
-
-    random.shuffle(addr_list)
-    return addr_list
+    from golem.config.active import ETHEREUM_NODE_LIST
+    node_list = ETHEREUM_NODE_LIST[:]
+    random.shuffle(node_list)
+    return node_list
 
 
 class NodeProcess(object):
@@ -56,7 +38,7 @@ class NodeProcess(object):
         stdin=DEVNULL
     )
 
-    def __init__(self, datadir, mainnet=False, addr=None, start_node=False):
+    def __init__(self, datadir, addr=None, start_node=False):
         """
         :param datadir: working directory
         :param addr: address of a geth instance to connect with
@@ -64,11 +46,11 @@ class NodeProcess(object):
         """
         self.datadir = datadir
         self.start_node = start_node
-        self._mainnet = mainnet
         self.web3 = None  # web3 client interface
         self.provider_proxy = ProviderProxy()  # web3 ipc / rpc provider
 
-        self.initial_addr_list = [addr] if addr else get_public_nodes(mainnet)
+        self.initial_addr_list = [addr] if addr else get_public_nodes()
+        print('>> initial addr list', get_public_nodes())
         self.addr_list = None
 
         self.__ps = None  # child process
@@ -130,13 +112,14 @@ class NodeProcess(object):
             return False
 
     def _create_local_ipc_provider(self, start_port=None):  # noqa pylint: disable=too-many-locals
-        chain = 'mainnet' if self._mainnet else 'rinkeby'
+        from golem.config.active import ETHEREUM_CHAIN, IS_MAINNET
+
         prog = self._find_geth()
 
         # Init geth datadir
         geth_log_dir = os.path.join(self.datadir, "logs")
         geth_log_path = os.path.join(geth_log_dir, "geth.log")
-        geth_datadir = os.path.join(self.datadir, 'ethereum', chain)
+        geth_datadir = os.path.join(self.datadir, 'ethereum', ETHEREUM_CHAIN)
 
         os.makedirs(geth_log_dir, exist_ok=True)
 
@@ -146,7 +129,7 @@ class NodeProcess(object):
         # Build unique IPC/socket path. We have to use system temp dir to
         # make sure the path has length shorter that ~100 chars.
         tempdir = tempfile.gettempdir()
-        ipc_file = '{}-{}'.format(chain, start_port)
+        ipc_file = '{}-{}'.format(ETHEREUM_CHAIN, start_port)
         ipc_path = os.path.join(tempdir, ipc_file)
 
         if is_windows():
@@ -163,7 +146,7 @@ class NodeProcess(object):
             '--nousb',
             '--verbosity', '3',
         ]
-        if not self._mainnet:
+        if not IS_MAINNET:
             args.append('--rinkeby')
 
         log.info("Starting Ethereum node: `{}`".format(" ".join(args)))
