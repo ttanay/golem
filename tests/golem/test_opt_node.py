@@ -84,7 +84,6 @@ class TestNode(TestWithDatabase):
                                        config_desc=cfg,
                                        keys_auth=keys_auth,
                                        database=ANY,
-                                       mainnet=False,
                                        geth_address=None,
                                        start_geth=False,
                                        start_geth_port=None,
@@ -123,7 +122,6 @@ class TestNode(TestWithDatabase):
         mock_node.assert_called_with(datadir=path.join(self.path, 'rinkeby'),
                                      app_config=ANY,
                                      config_desc=ANY,
-                                     mainnet=False,
                                      geth_address=geth_address,
                                      peers=[],
                                      start_geth=False,
@@ -152,7 +150,6 @@ class TestNode(TestWithDatabase):
                                        config_desc=ANY,
                                        keys_auth=None,
                                        database=ANY,
-                                       mainnet=False,
                                        geth_address=geth_address,
                                        start_geth=False,
                                        start_geth_port=None,
@@ -209,7 +206,6 @@ class TestNode(TestWithDatabase):
         mock_node.assert_called_with(datadir=path.join(self.path, 'rinkeby'),
                                      app_config=ANY,
                                      config_desc=ANY,
-                                     mainnet=False,
                                      geth_address=None,
                                      peers=[],
                                      start_geth=True,
@@ -235,7 +231,6 @@ class TestNode(TestWithDatabase):
                                        config_desc=ANY,
                                        keys_auth=None,
                                        database=ANY,
-                                       mainnet=False,
                                        geth_address=None,
                                        start_geth=True,
                                        start_geth_port=None,
@@ -250,8 +245,9 @@ class TestNode(TestWithDatabase):
         args = self.args + ['--mainnet']
 
         # when
-        runner = CliRunner()
-        return_value = runner.invoke(start, args)
+        with patch('golem.config.active.IS_MAINNET', True):
+            runner = CliRunner()
+            return_value = runner.invoke(start, args)
 
         # then
         assert return_value.exit_code == 0
@@ -264,8 +260,7 @@ class TestNode(TestWithDatabase):
                                      start_geth_port=None,
                                      use_concent=False,
                                      use_monitor=True,
-                                     password=None,
-                                     mainnet=True)
+                                     password=None,)
 
     @patch('golem.node.Client')
     def test_mainnet_should_be_passed_to_client(self, mock_client, *_):
@@ -273,8 +268,7 @@ class TestNode(TestWithDatabase):
         node = Node(
             datadir=self.path,
             app_config=Mock(),
-            config_desc=Mock(),
-            mainnet=True)
+            config_desc=Mock(),)
 
         node._client_factory(None)
 
@@ -290,7 +284,6 @@ class TestNode(TestWithDatabase):
                                        use_docker_manager=True,
                                        use_concent=False,
                                        use_monitor=False,
-                                       mainnet=True,
                                        apps_manager=ANY)
 
     @pytest.mark.skip('Issue #2476')
@@ -324,7 +317,6 @@ class TestNode(TestWithDatabase):
         mock_node.assert_called_with(datadir=path.join(self.path, 'rinkeby'),
                                      app_config=ANY,
                                      config_desc=ANY,
-                                     mainnet=False,
                                      geth_address=None,
                                      peers=[],
                                      start_geth=True,
@@ -354,7 +346,6 @@ class TestNode(TestWithDatabase):
                                        config_desc=ANY,
                                        keys_auth=None,
                                        database=ANY,
-                                       mainnet=False,
                                        geth_address=None,
                                        start_geth=True,
                                        start_geth_port=port,

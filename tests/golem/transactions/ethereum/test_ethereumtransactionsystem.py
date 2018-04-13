@@ -70,25 +70,28 @@ class TestEthereumTransactionSystem(TestWithDatabase, LogTestCase,
     @patch('golem.transactions.ethereum.ethereumtransactionsystem.'
            'PaymentProcessor')
     def test_mainnet_flag(self, pp, new_sci):
-        EthereumTransactionSystem(self.tempdir, PRIV_KEY, False)
-        new_sci.assert_called_once_with(
-            ANY,
-            ANY,
-            ANY,
-            golem_sci.chains.RINKEBY,
-        )
+
+        with patch('golem.config.active.IS_MAINNET', False):
+            EthereumTransactionSystem(self.tempdir, PRIV_KEY)
+            new_sci.assert_called_once_with(
+                ANY,
+                ANY,
+                ANY,
+                golem_sci.chains.RINKEBY,
+            )
         pp.assert_called_once_with(sci=ANY, faucet=True)
 
         new_sci.reset_mock()
         pp.reset_mock()
 
-        EthereumTransactionSystem(self.tempdir, PRIV_KEY, True)
-        new_sci.assert_called_once_with(
-            ANY,
-            ANY,
-            ANY,
-            golem_sci.chains.MAINNET,
-        )
+        with patch('golem.config.active.IS_MAINNET', True):
+            EthereumTransactionSystem(self.tempdir, PRIV_KEY)
+            new_sci.assert_called_once_with(
+                ANY,
+                ANY,
+                ANY,
+                golem_sci.chains.MAINNET,
+            )
         pp.assert_called_once_with(sci=ANY, faucet=False)
 
     @patch('golem.transactions.ethereum.ethereumtransactionsystem.NodeProcess',

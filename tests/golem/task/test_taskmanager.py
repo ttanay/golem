@@ -776,7 +776,7 @@ class TestTaskManager(LogTestCase, TestDirFixtureWithReactor,
     @patch('golem.network.p2p.node.Node.collect_network_info')
     def test_get_tasks(self, _):
         count = 3
-        apps_manager = AppsManager(False)
+        apps_manager = AppsManager()
         apps_manager.load_all_apps()
         tm = TaskManager("ABC", Node(), Mock(), root_path=self.path,
                          apps_manager=apps_manager)
@@ -806,7 +806,7 @@ class TestTaskManager(LogTestCase, TestDirFixtureWithReactor,
     @patch('apps.blender.task.blenderrendertask.'
            'BlenderTaskTypeInfo.get_preview')
     def test_get_task_preview(self, get_preview, _):
-        apps_manager = AppsManager(False)
+        apps_manager = AppsManager()
         apps_manager.load_all_apps()
         tm = TaskManager("ABC", Node(), Mock(), root_path=self.path,
                          apps_manager=apps_manager)
@@ -818,7 +818,7 @@ class TestTaskManager(LogTestCase, TestDirFixtureWithReactor,
     @patch('golem.network.p2p.node.Node.collect_network_info')
     def test_get_subtasks_borders(self, _):
         count = 3
-        apps_manager = AppsManager(False)
+        apps_manager = AppsManager()
         apps_manager.load_all_apps()
         tm = TaskManager("ABC", Node(), Mock(), root_path=self.path,
                          apps_manager=apps_manager)
