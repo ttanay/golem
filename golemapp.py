@@ -119,6 +119,13 @@ def start(monitor, concent, datadir, node_address, rpc_address, peer, mainnet,
           geth_address, password, accept_terms, generate_rpc_cert, version,
           log_level, enable_talkback, m):
 
+    if mainnet:
+        os.environ['GOLEM_ENVIRONMENT'] = 'mainnet'
+        subdir = 'mainnet'
+    else:
+        os.environ.setdefault('GOLEM_ENVIRONMENT', 'testnet')
+        subdir = 'testnet'
+
     freeze_support()
     delete_reactor()
 
@@ -127,7 +134,6 @@ def start(monitor, concent, datadir, node_address, rpc_address, peer, mainnet,
         return 0
 
     # We should use different directories for different chains
-    subdir = 'mainnet' if mainnet else 'rinkeby'
     datadir = os.path.join(datadir, subdir)
     # We don't want different chains to talk to each other
     if not mainnet:
@@ -142,7 +148,7 @@ def start(monitor, concent, datadir, node_address, rpc_address, peer, mainnet,
     sys.modules['win32com.gen_py.pywintypes'] = None
     sys.modules['win32com.gen_py.pythoncom'] = None
 
-    app_config = AppConfig.load_config(datadir, mainnet=mainnet)
+    app_config = AppConfig.load_config(datadir)
     config_desc = ClientConfigDescriptor()
     config_desc.init_from_app_config(app_config)
     config_desc = ConfigApprover(config_desc).approve()
@@ -168,7 +174,7 @@ def start(monitor, concent, datadir, node_address, rpc_address, peer, mainnet,
 
         log_golem_version()
         log_platform_info()
-        log_ethereum_chain(mainnet)
+        log_ethereum_chain()
 
         node = Node(
             datadir=datadir,
@@ -177,7 +183,6 @@ def start(monitor, concent, datadir, node_address, rpc_address, peer, mainnet,
             peers=peer,
             use_monitor=monitor,
             use_concent=concent,
-            mainnet=mainnet,
             start_geth=False,
             start_geth_port=None,
             geth_address=geth_address,
@@ -238,9 +243,9 @@ def log_platform_info():
                 humanize.naturalsize(swapinfo.total, binary=True))
 
 
-def log_ethereum_chain(mainnet: bool):
-    chain = "mainnet" if mainnet else "rinkeby"
-    logger.info("Ethereum chain: %s", chain)
+def log_ethereum_chain():
+    from golem.config.active import ETHEREUM_CHAIN
+    logger.info("Ethereum chain: %s", ETHEREUM_CHAIN)
 
 
 def generate_rpc_certificate(datadir: str):

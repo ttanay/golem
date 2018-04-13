@@ -92,7 +92,6 @@ class Client(HardwarePresetsMixin):
             config_desc: ClientConfigDescriptor,
             keys_auth: KeysAuth,
             database: Database,
-            mainnet: bool = False,
             connect_to_known_hosts: bool = True,
             use_docker_manager: bool = True,
             use_monitor: bool = True,
@@ -100,9 +99,8 @@ class Client(HardwarePresetsMixin):
             start_geth: bool = False,
             start_geth_port: Optional[int] = None,
             geth_address: Optional[str] = None,
-            apps_manager: AppsManager = AppsManager(False)) -> None:
+            apps_manager: AppsManager = AppsManager()) -> None:
 
-        self.mainnet = mainnet
         self.apps_manager = apps_manager
         self.datadir = datadir
         self.__lock_datadir()
@@ -175,7 +173,6 @@ class Client(HardwarePresetsMixin):
         self.transaction_system = EthereumTransactionSystem(
             datadir,
             self.keys_auth._private_key,
-            mainnet,
             start_geth=start_geth,
             start_port=start_geth_port,
             address=geth_address,
@@ -198,7 +195,6 @@ class Client(HardwarePresetsMixin):
         self.use_monitor = use_monitor
         self.monitor = None
         self.session_id = str(uuid.uuid4())
-        self.mainnet = mainnet
 
         dispatcher.connect(
             self.p2p_listener,
@@ -299,7 +295,6 @@ class Client(HardwarePresetsMixin):
             self.node,
             self.config_desc,
             self.keys_auth,
-            self.mainnet,
             connect_to_known_hosts=self.connect_to_known_hosts
         )
 
@@ -468,10 +463,12 @@ class Client(HardwarePresetsMixin):
         logger.info("Resumed")
 
     def init_monitor(self):
+        from golem.config.active import IS_MAINNET
+
         logger.debug("Starting monitor ...")
         metadata = self.__get_nodemetadatamodel()
         self.monitor = SystemMonitor(
-            metadata, MONITOR_CONFIG, send_payment_info=(not self.mainnet))
+            metadata, MONITOR_CONFIG, send_payment_info=not IS_MAINNET)
         self.monitor.start()
         self.diag_service = DiagnosticsService(DiagnosticsOutputFormat.data)
         self.diag_service.register(
@@ -880,7 +877,9 @@ class Client(HardwarePresetsMixin):
             amount: Union[str, int],
             destination: str,
             currency: str) -> List[str]:
-        if not self.mainnet:
+
+        from golem.config.active import IS_MAINNET
+        if not IS_MAINNET:
             raise Exception("Withdrawals are disabled on testnet")
 
         if isinstance(amount, str):

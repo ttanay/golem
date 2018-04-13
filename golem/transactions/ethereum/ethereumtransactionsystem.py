@@ -17,11 +17,12 @@ log = logging.getLogger('golem.pay')
 class EthereumTransactionSystem(TransactionSystem):
     """ Transaction system connected with Ethereum """
 
-    def __init__(self, datadir, node_priv_key, mainnet=False, start_geth=False,  # noqa pylint: disable=too-many-arguments
+    def __init__(self, datadir, node_priv_key, start_geth=False,
                  start_port=None, address=None):
         """ Create new transaction system instance for node with given id
         :param node_priv_key str: node's private key for Ethereum account(32b)
         """
+        from golem.config.active import IS_MAINNET, ETHEREUM_CHAIN
 
         try:
             eth_addr = encode_hex(privtoaddr(node_priv_key))
@@ -29,17 +30,17 @@ class EthereumTransactionSystem(TransactionSystem):
             raise ValueError("not a valid private key")
         log.info("Node Ethereum address: %s", eth_addr)
 
-        self._node = NodeProcess(datadir, mainnet, start_geth, address)
+        self._node = NodeProcess(datadir, start_geth, address)
         self._node.start(start_port)
         self._sci = new_sci(
             self._node.web3,
             eth_addr,
             lambda tx: tx.sign(node_priv_key),
-            chains.MAINNET if mainnet else chains.RINKEBY,
+            ETHEREUM_CHAIN,
         )
         self.payment_processor = PaymentProcessor(
             sci=self._sci,
-            faucet=not mainnet,
+            faucet=not IS_MAINNET,
         )
 
         super().__init__(

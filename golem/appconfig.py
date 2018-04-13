@@ -94,9 +94,10 @@ class AppConfig:
     __loaded_configs = set()  # type: Set[Any]
 
     @classmethod
-    def load_config(cls, datadir, cfg_file_name=CONFIG_FILENAME, mainnet=False):
+    def load_config(cls, datadir, cfg_file_name=CONFIG_FILENAME):
 
-        if not mainnet and 'pytest' not in sys.modules:
+        from golem.config.active import IS_MAINNET
+        if not IS_MAINNET and 'pytest' not in sys.modules:
             global ENABLE_TALKBACK
             ENABLE_TALKBACK = 1
 

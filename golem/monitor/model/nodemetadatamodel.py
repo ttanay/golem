@@ -14,7 +14,8 @@ class NodeMetadataModel(BasicModel):
         self.version = ver
         self.settings = defaultserializer.serialize("ClientConfigDescriptor",
                                                     client.config_desc)
-        self.net = 'mainnet' if client.mainnet else 'testnet'
+        from golem.config.active import ETHEREUM_CHAIN
+        self.net = ETHEREUM_CHAIN
 
 
 class NodeInfoModel(BasicModel):

@@ -8,10 +8,8 @@ LONG_STANDARD_SIZE = 4
 ############################
 #       VARIABLES          #
 ############################
-APP_NAME = "Brass Golem"
 PRIVATE_KEY = "keystore.json"
 DEFAULT_PROC_FILE = "node_processes.ctl"
-MAX_PROC_FILE_SIZE = 1024 * 1024
 
 #################
 # NETWORK CONST #

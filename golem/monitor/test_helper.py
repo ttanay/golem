@@ -13,7 +13,6 @@ def meta_data():
     client_mock.cliid = str(uuid4())
     client_mock.sessid = str(uuid4())
     client_mock.config_desc = ClientConfigDescriptor()
-    client_mock.mainnet = False
     return NodeMetadataModel(client_mock, sys.platform, 'app_version')
 
 

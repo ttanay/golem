@@ -40,7 +40,6 @@ class Node(object):  # pylint: disable=too-few-public-methods
                  peers: Optional[List[SocketAddress]] = None,
                  use_monitor: bool = False,
                  use_concent: bool = False,
-                 mainnet: bool = False,
                  use_docker_manager: bool = True,
                  start_geth: bool = False,
                  start_geth_port: Optional[int] = None,
@@ -54,7 +53,6 @@ class Node(object):  # pylint: disable=too-few-public-methods
 
         self._reactor = reactor
         self._config_desc = config_desc
-        self._mainnet = mainnet
         self._datadir = datadir
         self._use_docker_manager = use_docker_manager
 
@@ -72,7 +70,7 @@ class Node(object):  # pylint: disable=too-few-public-methods
 
         self.client: Optional[Client] = None
 
-        self.apps_manager = AppsManager(self._mainnet)
+        self.apps_manager = AppsManager()
 
         self._client_factory = lambda keys_auth: Client(
             datadir=datadir,
@@ -80,7 +78,6 @@ class Node(object):  # pylint: disable=too-few-public-methods
             config_desc=config_desc,
             keys_auth=keys_auth,
             database=self._db,
-            mainnet=mainnet,
             use_docker_manager=use_docker_manager,
             use_monitor=use_monitor,
             use_concent=use_concent,
@@ -144,7 +141,8 @@ class Node(object):  # pylint: disable=too-few-public-methods
         return KeysAuth.key_exists(self._datadir, PRIVATE_KEY)
 
     def is_mainnet(self) -> bool:
-        return self._mainnet
+        from golem.config.active import IS_MAINNET
+        return IS_MAINNET
 
     def _start_rpc(self) -> Deferred:
         self.rpc_router = rpc = CrossbarRouter(
