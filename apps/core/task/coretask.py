@@ -190,7 +190,12 @@ class CoreTask(Task):
                                                           create=True)
 
     def needs_computation(self):
-        return (self.last_task != self.total_tasks) or (self.num_failed_subtasks > 0)
+        tasks = dict(self.subtasks_given)
+
+        states = [SubtaskStatus.failure, SubtaskStatus.restarted]
+        failed = sum(1 for task in tasks.values() if task['status'] in states)
+
+        return (len(tasks) - failed) < self.total_tasks
 
     def finished_computation(self):
         return self.num_tasks_received == self.total_tasks
