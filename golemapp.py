@@ -27,6 +27,16 @@ from golem.config.environments import set_environment  # noqa
 from golem.core import variables  # noqa
 from golem.core.common import install_reactor  # noqa
 
+import sys, locale, os
+print(sys.getdefaultencoding())
+print(sys.stdout.encoding)
+print(sys.stdout.isatty())
+print(locale.getpreferredencoding())
+print(sys.getfilesystemencoding())
+print(os.environ["PYTHONIOENCODING"])
+print(chr(246), chr(9786), chr(9787))
+
+
 logger = logging.getLogger('golemapp')  # using __name__ gives '__main__' here
 
 # Monkey patch for ethereum.slogging.
