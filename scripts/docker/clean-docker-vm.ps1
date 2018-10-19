@@ -1,6 +1,6 @@
 # Block for declaring the script parameters.
 Param(
-  $hasInstalled = (AI_GetMsiProperty AI_MISSING_PREREQS),
+  $hasInstalled = (AI_GetMsiProperty DOCKER_VERSION),
   $pfSFFolder = (AI_GetMsiProperty ProgramFiles64Folder)
 )
 <#
@@ -37,14 +37,11 @@ try {
 	LogWrite ($Error[0].Exception)
 }
 
-"Done"
-#>
-"Clean Docker Machine..."
-# TODO: Change to docker or docker-machine updated, always execute this time from TB -> binaries.
-#if ( -Not ( $hasInstalled.indexof("Docker") = -1 ))
-#{
-$dockerRmCmd = """" + $pfSFFolder + "Docker Toolbox\docker-machine.exe"" rm -f golem"
-cmd.exe /c $dockerRmCmd
-#}
 
-"Done"
+"docker version installed: " + $hasInstalled
+
+if ( $hasInstalled -ne "18.3.1" )
+{
+	$dockerRmCmd = """" + $pfSFFolder + "golem\docker-machine.exe"" rm -f golem"
+	cmd.exe /c $dockerRmCmd
+}
