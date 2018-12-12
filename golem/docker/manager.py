@@ -22,18 +22,15 @@ logger = logging.getLogger(__name__)
 
 class DockerManager(DockerConfigManager):
 
-    def __init__(self, config_desc=None):
+    def __init__(self):
         super().__init__()
 
         self._config = dict(DEFAULTS)
         self._env_checked = False
         self._threads = ThreadQueueExecutor(queue_name='docker-machine')
 
-        if config_desc:
-            self.build_config(config_desc)
-
     @report_calls(Component.docker, 'instance.check')
-    def check_environment(self):
+    def check_environment(self, config_desc=None):
         if self._env_checked:
             return bool(self.hypervisor)
 
@@ -42,7 +39,13 @@ class DockerManager(DockerConfigManager):
         try:
             if not is_linux():
                 self.hypervisor = self._select_hypervisor()
+                if config_desc:
+                    self.build_config(config_desc)
                 self.hypervisor.setup()
+            else:
+                if config_desc:
+                    self.build_config(config_desc)
+
         except Exception as e:  # pylint: disable=broad-except
             logger.error(
                 """
