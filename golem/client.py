@@ -101,7 +101,7 @@ class Client:  # noqa pylint: disable=too-many-instance-attributes,too-many-publ
             use_docker_manager: bool = True,
             use_monitor: bool = True,
             # SEE: golem.core.variables.CONCENT_CHOICES
-            concent_variant: dict = CONCENT_CHOICES['disabled'],
+            concent_variant: dict = CONCENT_CHOICES['disabled'],  # type: ignore
             geth_address: Optional[str] = None,
             apps_manager: AppsManager = AppsManager(),
             task_finished_cb=None,
