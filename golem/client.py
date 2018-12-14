@@ -29,7 +29,6 @@ from golem.core.common import (
     to_unicode,
 )
 from golem.core.fileshelper import du
-from golem.core.variables import CONCENT_CHOICES
 from golem.hardware.presets import HardwarePresets
 from golem.core.keysauth import KeysAuth
 from golem.core.service import LoopingCallService, IService
@@ -97,11 +96,11 @@ class Client:  # noqa pylint: disable=too-many-instance-attributes,too-many-publ
             keys_auth: KeysAuth,
             database: Database,
             transaction_system: TransactionSystem,
+            # SEE: golem.core.variables.CONCENT_CHOICES
+            concent_variant: dict,
             connect_to_known_hosts: bool = True,
             use_docker_manager: bool = True,
             use_monitor: bool = True,
-            # SEE: golem.core.variables.CONCENT_CHOICES
-            concent_variant: dict = CONCENT_CHOICES['disabled'],  # type: ignore
             geth_address: Optional[str] = None,
             apps_manager: AppsManager = AppsManager(),
             task_finished_cb=None,

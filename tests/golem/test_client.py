@@ -26,8 +26,8 @@ from golem.client import Client, ClientTaskComputerEventListener, \
 from golem.clientconfigdescriptor import ClientConfigDescriptor
 from golem.core.common import timeout_to_string
 from golem.core.deferred import sync_wait
-from golem.hardware.presets import HardwarePresets
 from golem.core.variables import CONCENT_CHOICES
+from golem.hardware.presets import HardwarePresets
 from golem.manager.nodestatesnapshot import ComputingSubtaskStateSnapshot
 from golem.network.p2p.node import Node
 from golem.network.p2p.peersession import PeerSessionInfo
@@ -106,6 +106,7 @@ def make_client(*_, **kwargs):
         'connect_to_known_hosts': False,
         'use_docker_manager': False,
         'use_monitor': False,
+        'concent_variant': CONCENT_CHOICES['disabled'],
     }
     default_kwargs.update(kwargs)
     client = Client(**default_kwargs)
