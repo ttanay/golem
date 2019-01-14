@@ -2,7 +2,7 @@ import os
 
 
 def in_appveyor():
-    return os.environ.get('APPVEYOR', False)
+    return False  # os.environ.get('APPVEYOR', False)
 
 
 def in_travis():
