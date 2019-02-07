@@ -1,5 +1,6 @@
 from copy import copy
 import decimal
+from enum import Enum
 import json
 import logging
 import os
@@ -74,6 +75,10 @@ class GLambdaTaskTypeInfo(TaskTypeInfo):
             GLambdaTaskBuilder
         )
 
+class VerificationMethod():
+    NO_VERIFICATION = "None"
+    EXTERNALLY_VERIFIED = "External"
+    SUPPLIED_METHOD = "Supplied method"
 
 class GLambdaTask(CoreTask):
 
@@ -89,11 +94,17 @@ class GLambdaTask(CoreTask):
                  total_tasks=1,
                  method=None,
                  args=None,
+                 verification=None,
                  dir_manager=None):
         super(GLambdaTask, self).__init__(task_definition, owner, max_pending_client_results,
             resource_size, root_path, total_tasks)
         self.method = method
         self.args = args
+        self.verification_metadata = verification
+        self.verification_type = verification['type']
+        if verification['type'] == VerificationMethod.SUPPLIED_METHOD:
+            # TODO deserialize this method
+            self.verification_method = verification['method']
         self.results = None
         self.dir_manager = dir_manager
         self.output_path = dir_manager.get_task_output_dir(task_definition.task_id)
@@ -162,6 +173,30 @@ class GLambdaTask(CoreTask):
     def short_extra_data_repr(self, extra_data: Task.ExtraData) -> str:
         return 'glambda task'
 
+    def _copy_results(self, subtask_id):
+        outdir_content = os.listdir(
+            os.path.join(
+                self.dir_manager.get_task_temporary_dir(self.task_definition.task_id),
+                subtask_id
+            )
+        )
+
+        for obj in outdir_content:
+            shutil.move(
+                os.path.join(
+                    self.dir_manager.get_task_temporary_dir(self.task_definition.task_id),
+                    subtask_id,
+                    obj),
+                self.dir_manager.get_task_output_dir(self.task_definition.task_id,
+                                                                os.path.basename(obj))
+            )
+    
+
+    def _task_verified(self, subtask_id, verif_cb):
+            self.accept_results(subtask_id, None)
+            verif_cb()
+            self._copy_results(subtask_id)
+
     def computation_finished(self, subtask_id, task_result,
                              verification_finished=None):
         if not self.should_accept(subtask_id):
@@ -171,45 +206,50 @@ class GLambdaTask(CoreTask):
         self.subtasks_given[subtask_id]['status'] = SubtaskStatus.verifying
         self.num_tasks_received += 1
 
-        if True:
+        if self.verification_type == VerificationMethod.NO_VERIFICATION:
             verdict = SubtaskVerificationState.VERIFIED
-
+        elif self.verification_type == VerificationMethod.SUPPLIED_METHOD:
+            verdict = self.verification_method(task_result)
+        else:
+            import pdb; pdb.set_trace()
+            self.subtasks_given[subtask_id]['verif_cb'] = verification_finished
+            verdict = SubtaskVerificationState.IN_PROGRESS 
+            '''
+            dispatcher.send(
+                signal='golem.taskmanager',
+                event='task_status_updated',
+                task_id=self.task_definition.task_id,
+                subtask_id=subtask_id,
+                op=SubtaskOp.PENDING_VERIFICATION
+            )
+            '''
         try:
-            if verdict == SubtaskVerificationState.VERIFIED:
-                self.accept_results(subtask_id, None)
-            # TODO Add support for different verification states. issue #2422
-            else:
-                self.computation_failed(subtask_id)
+            self._handle_verification_verdict(subtask_id, verdict, 
+                                              verification_finished)
         except Exception as exc:
             logger.warning("Failed during accepting results %s", exc)
 
-        verification_finished()
-        try:
-            outdir_content = os.listdir(
-                os.path.join(
-                    self.dir_manager.get_task_temporary_dir(self.task_definition.task_id),
-                    subtask_id
-                )
-            )
-
-            for obj in outdir_content:
-                shutil.move(
-                    os.path.join(
-                        self.dir_manager.get_task_temporary_dir(self.task_definition.task_id),
-                        subtask_id,
-                        obj),
-                    self.dir_manager.get_task_output_dir(self.task_definition.task_id,
-                                                                 os.path.basename(obj))
-                )
-
-        except BaseException as e:
-            logger.exception('')
+    def _handle_verification_verdict(self, subtask_id, verdict, verif_cb):
+        if verdict == SubtaskVerificationState.VERIFIED:
+            self._task_verified(subtask_id, verif_cb)
+        elif verdict in [SubtaskVerificationState.TIMEOUT,
+                            SubtaskVerificationState.WRONG_ANSWER,
+                            SubtaskVerificationState.NOT_SURE]:
+            self.computation_failed(subtask_id)
+        else:
+            logger.warning("Unhandled verification verdict: {}".format(
+                verdict))
 
     def get_results(self, subtask_id):
         return self.results
 
     def get_output_names(self) -> List:
         return [self.output_path]
+
+    def external_verify_subtask(self, subtask_id, verdict):
+        verif_cb = self.subtasks_given[subtask_id].pop('verif_cb')
+        self._handle_verification_verdict(subtask_id, verdict, verif_cb)
+        return None
 
 
 class GLambdaTaskBuilder(CoreTaskBuilder):
@@ -240,6 +280,7 @@ class GLambdaTaskBuilder(CoreTaskBuilder):
         kwargs["root_path"] = self.root_path
         kwargs["method"] = self.task_definition.extra_data['method']
         kwargs["args"] = self.task_definition.extra_data['args']
+        kwargs["verification"] = self.task_definition.extra_data['verification']
         kwargs["dir_manager"] = self.dir_manager
         return kwargs
 

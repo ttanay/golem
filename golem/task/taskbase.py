@@ -317,6 +317,11 @@ class Task(abc.ABC):
         """
         return []
 
+    def external_verify_subtask(self, subtask_id, verdict):
+        """ 
+        """
+        return None
+
     def get_output_states(self) -> List:
         """ Return list of states of final task results
         :return list:
