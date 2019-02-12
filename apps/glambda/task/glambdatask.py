@@ -278,9 +278,9 @@ class GLambdaTaskBuilder(CoreTaskBuilder):
         kwargs["task_definition"] = self.task_definition
         kwargs["owner"] = self.owner
         kwargs["root_path"] = self.root_path
-        kwargs["method"] = self.task_definition.extra_data['method']
-        kwargs["args"] = self.task_definition.extra_data['args']
-        kwargs["verification"] = self.task_definition.extra_data['verification']
+        kwargs["method"] = self.task_definition.method
+        kwargs["args"] = self.task_definition.args
+        kwargs["verification"] = self.task_definition.verification
         kwargs["dir_manager"] = self.dir_manager
         return kwargs
 
@@ -292,7 +292,9 @@ class GLambdaTaskBuilder(CoreTaskBuilder):
         if 'resources' in dictionary:
             definition.resources = set(dictionary['resources'])
         definition.subtasks_count = int(dictionary['subtasks_count'])
-        definition.extra_data = dictionary['extra_data']
+        definition.method = dictionary['method']
+        definition.args = dictionary['args']
+        definition.verification = dictionary['verification']
         return definition
 
     @classmethod
