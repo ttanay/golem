@@ -288,11 +288,6 @@ class Node(HardwarePresetsMixin):
         with self.tempfs.openbin(path, 'wb') as f:
             return f.write(data)
 
-    @rpc_utils.expose('fs.getsyspath')
-    def fs_getsyspath(self, path):
-        path = str(PurePath(path))
-        return self.tempfs.getsyspath(path)
-
     @rpc_utils.expose('fs.read')
     def fs_read(self, path):
         path = str(PurePath(path))
@@ -311,29 +306,38 @@ class Node(HardwarePresetsMixin):
         path = self.get_temp_results_path_for_task(task_id)
         self.tempfs.removetree(path)
 
+    def _copy_files_to_tmp_location(self, files, dest_fs, dest):
+        outs = []
+        osfs = OSFS('/')
+        dest_fs.makedir(dest)
+        for output in files:
+            out_path = os.path.join(
+                dest,
+                os.path.basename(os.path.normpath(output)))
+            if os.path.isfile(output):
+                fs.copy.copy_file(osfs, output, dest_fs, out_path)
+            elif os.path.isdir(output):
+                fs.copy.copy_dir(osfs, output, dest_fs, out_path)
+            else:
+                pass
+            outs.append(str(PurePath(out_path)))
+        return outs
+
+    @rpc_utils.expose('comp.task.subtask_results')
+    def query_subtask_results(self, task_id, subtask_id):
+        task = self.client.task_server.task_manager.tasks[task_id]
+        results = task.get_results(subtask_id)
+        res_path = self.get_temp_results_path_for_task(subtask_id)
+        # Create a directory there results will be held temporarily
+        outs = self._copy_files_to_tmp_location(results, self.tempfs, res_path)
+        return outs
+
     @rpc_utils.expose('comp.task.result')
     def get_task_results(self, task_id):
         # FIXME Obtain task state in less hacky way
         state = self.client.task_server.task_manager.query_task_state(task_id)
-
         res_path = self.get_temp_results_path_for_task(task_id)
-
-        # Create a directory there results will be held temporarily
-        self.tempfs.makedir(res_path)
-        osfs = OSFS('/')
-
-        outs = []
-        for output in state.outputs:
-            out_path = os.path.join(
-                res_path,
-                os.path.basename(os.path.normpath(output)))
-            if os.path.isfile(output):
-                fs.copy.copy_file(osfs, output, self.tempfs, out_path)
-            elif os.path.isdir(output):
-                fs.copy.copy_dir(osfs, output, self.tempfs, out_path)
-            else:
-                pass
-            outs.append(str(PurePath(out_path)))
+        outs = self._copy_files_to_tmp_location(state.outputs, self.tempfs, res_path)
         return outs
 
     @rpc_utils.expose('fs.remove')

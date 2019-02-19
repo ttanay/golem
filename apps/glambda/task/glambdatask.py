@@ -105,7 +105,7 @@ class GLambdaTask(CoreTask):
         if verification['type'] == VerificationMethod.SUPPLIED_METHOD:
             # TODO deserialize this method
             self.verification_method = verification['method']
-        self.results = None
+        self.results = {}
         self.dir_manager = dir_manager
         self.output_path = dir_manager.get_task_output_dir(task_definition.task_id)
 
@@ -204,6 +204,7 @@ class GLambdaTask(CoreTask):
             return
 
         self.subtasks_given[subtask_id]['status'] = SubtaskStatus.verifying
+        self.results[subtask_id] = task_result
         self.num_tasks_received += 1
 
         if self.verification_type == VerificationMethod.NO_VERIFICATION:
@@ -211,18 +212,8 @@ class GLambdaTask(CoreTask):
         elif self.verification_type == VerificationMethod.SUPPLIED_METHOD:
             verdict = self.verification_method(task_result)
         else:
-            import pdb; pdb.set_trace()
             self.subtasks_given[subtask_id]['verif_cb'] = verification_finished
             verdict = SubtaskVerificationState.IN_PROGRESS 
-            '''
-            dispatcher.send(
-                signal='golem.taskmanager',
-                event='task_status_updated',
-                task_id=self.task_definition.task_id,
-                subtask_id=subtask_id,
-                op=SubtaskOp.PENDING_VERIFICATION
-            )
-            '''
         try:
             self._handle_verification_verdict(subtask_id, verdict, 
                                               verification_finished)
@@ -239,9 +230,6 @@ class GLambdaTask(CoreTask):
         else:
             logger.warning("Unhandled verification verdict: {}".format(
                 verdict))
-
-    def get_results(self, subtask_id):
-        return self.results
 
     def get_output_names(self) -> List:
         return [self.output_path]
