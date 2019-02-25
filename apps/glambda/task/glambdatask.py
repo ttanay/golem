@@ -78,7 +78,7 @@ class GLambdaTaskTypeInfo(TaskTypeInfo):
 class VerificationMethod():
     NO_VERIFICATION = "None"
     EXTERNALLY_VERIFIED = "External"
-    SUPPLIED_METHOD = "Supplied method"
+
 
 class GLambdaTask(CoreTask):
 
@@ -102,12 +102,13 @@ class GLambdaTask(CoreTask):
         self.args = args
         self.verification_metadata = verification
         self.verification_type = verification['type']
-        if verification['type'] == VerificationMethod.SUPPLIED_METHOD:
-            # TODO deserialize this method
-            self.verification_method = verification['method']
         self.results = {}
         self.dir_manager = dir_manager
         self.output_path = dir_manager.get_task_output_dir(task_definition.task_id)
+        self.outputs = [
+            os.path.join(self.output_path, output) 
+            for output in task_definition.outputs
+        ]
 
     def query_extra_data(self, perf_index: float,
                          node_id: Optional[str] = None,
@@ -205,13 +206,10 @@ class GLambdaTask(CoreTask):
 
         self.subtasks_given[subtask_id]['status'] = SubtaskStatus.verifying
         self.results[subtask_id] = task_result
-        self.num_tasks_received += 1
 
         if self.verification_type == VerificationMethod.NO_VERIFICATION:
             verdict = SubtaskVerificationState.VERIFIED
-        elif self.verification_type == VerificationMethod.SUPPLIED_METHOD:
-            verdict = self.verification_method(task_result)
-        else:
+        elif self.verification_type == VerificationMethod.EXTERNALLY_VERIFIED:
             self.subtasks_given[subtask_id]['verif_cb'] = verification_finished
             verdict = SubtaskVerificationState.IN_PROGRESS 
         try:
@@ -222,17 +220,19 @@ class GLambdaTask(CoreTask):
 
     def _handle_verification_verdict(self, subtask_id, verdict, verif_cb):
         if verdict == SubtaskVerificationState.VERIFIED:
+            self.num_tasks_received += 1
             self._task_verified(subtask_id, verif_cb)
         elif verdict in [SubtaskVerificationState.TIMEOUT,
                             SubtaskVerificationState.WRONG_ANSWER,
                             SubtaskVerificationState.NOT_SURE]:
             self.computation_failed(subtask_id)
+            verif_cb()
         else:
             logger.warning("Unhandled verification verdict: {}".format(
                 verdict))
 
     def get_output_names(self) -> List:
-        return [self.output_path]
+        return self.outputs
 
     def external_verify_subtask(self, subtask_id, verdict):
         verif_cb = self.subtasks_given[subtask_id].pop('verif_cb')
@@ -283,6 +283,7 @@ class GLambdaTaskBuilder(CoreTaskBuilder):
         definition.method = dictionary['method']
         definition.args = dictionary['args']
         definition.verification = dictionary['verification']
+        definition.outputs = dictionary['outputs']
         return definition
 
     @classmethod

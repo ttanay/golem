@@ -348,7 +348,10 @@ class Node(HardwarePresetsMixin):
     @rpc_utils.expose('fs.removetree')
     def fs_removetree(self, path):
         path = str(PurePath(path))
-        return self.tempfs.removetree(path)
+        try:
+            return self.tempfs.removetree(path)
+        except fs.errors.ResourceNotFound as e:
+            pass
 
     @rpc_utils.expose('fs.purge')
     def fs_purge(self):
