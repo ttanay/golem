@@ -5,6 +5,6 @@ from golem.docker.environment import DockerEnvironment
 
 class GLambdaTaskEnvironment(DockerEnvironment):
     DOCKER_IMAGE = "golemfactory/glambda"
-    DOCKER_TAG = "1.1"
+    DOCKER_TAG = "1.2"
     ENV_ID = "glambda"
     SHORT_DESCRIPTION = "GLambda PoC"
