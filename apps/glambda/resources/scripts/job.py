@@ -12,7 +12,7 @@ with open('params.json', 'rb') as params_file:
 
 
 result_path = os.path.join(os.environ['OUTPUT_DIR'],
-                        'result.txt')
+                        'result.json')
 
 def write_path(path, content):
     with open(path, 'w') as out:
