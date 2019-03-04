@@ -7,7 +7,8 @@ class UploadController(object):
         self.fs = fs
         self.meta = {
             'chunk_size': 131072*4,
-            'platform': sys.platform
+            'platform': sys.platform,
+            'syspath': fs.getsyspath('')
         }
         self.fd_id_map = {}
 

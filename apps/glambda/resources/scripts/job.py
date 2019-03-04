@@ -13,7 +13,7 @@ with open('params.json', 'rb') as params_file:
 result_obj = {}
 
 result_path = os.path.join(os.environ['OUTPUT_DIR'],
-                        'result.txt')
+                        'result.json')
 
 def write_path(path, content):
     with open(path, 'w') as out:
@@ -25,9 +25,8 @@ try:
     method_code = cloudpickle.loads(base64.b64decode(params['method']))
     args = cloudpickle.loads(base64.b64decode(params['args']))
     result = method_code(args)
+    result_obj['data'] = result
+    write_result(json.dumps(result_obj))
 except Exception as e:
     result_obj['error'] = str(e)
-else:
-    result_obj['data'] = result
-
-write_result(json.dumps(result_obj))
+    write_result(json.dumps(result_obj))

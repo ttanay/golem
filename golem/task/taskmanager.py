@@ -664,6 +664,14 @@ class TaskManager(TaskEventListener):
         else:
             return False
 
+    def external_verify_subtask(self, subtask_id, verdict):
+        logger.warning("external_verify_subtask. subtask_id=%r", subtask_id)
+        if subtask_id in self.subtask2task_mapping:
+            task_id = self.subtask2task_mapping[subtask_id]
+            return self.tasks[task_id].external_verify_subtask(subtask_id, verdict)
+        else:
+            raise ValueError('Not my subtask')
+
     def get_node_id_for_subtask(self, subtask_id):
         if subtask_id not in self.subtask2task_mapping:
             return None
@@ -723,6 +731,9 @@ class TaskManager(TaskEventListener):
                                                  op=TaskOp.NOT_ACCEPTED)
             verification_finished()
 
+        self.notice_task_updated(task_id,
+                                    subtask_id=subtask_id,
+                                    op=SubtaskOp.VERIFYING)
         self.tasks[task_id].computation_finished(
             subtask_id, result, verification_finished_
         )
@@ -892,6 +903,11 @@ class TaskManager(TaskEventListener):
         self.notice_task_updated(task_id,
                                  subtask_id=subtask_id,
                                  op=SubtaskOp.RESTARTED)
+
+    @handle_subtask_key_error
+    def restart_subtask(self, subtask_id, verdict):
+        task_id = self.subtask2task_mapping[subtask_id]
+        self.tasks[task_id].restart_subtask(subtask_id, verdict)
 
     @handle_task_key_error
     def abort_task(self, task_id):

@@ -1,12 +1,12 @@
 import logging
 from collections import Callable
 from datetime import datetime
-from enum import Enum
+from enum import Enum, IntEnum
 
 logger = logging.getLogger("verifier")
 
 
-class SubtaskVerificationState(Enum):
+class SubtaskVerificationState(IntEnum):
     UNKNOWN_SUBTASK = 0
     WAITING = 1
     IN_PROGRESS = 2
