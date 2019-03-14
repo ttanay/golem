@@ -14,6 +14,8 @@ from golem_messages import message
 from golem_messages import utils as msg_utils
 from pydispatch import dispatcher
 
+from apps.core.task.coretaskstate import RunVerification
+
 import golem
 from golem.core import common
 from golem.core.keysauth import KeysAuth
@@ -220,13 +222,19 @@ class TaskSession(BasicSafeSession, ResourceHandshakeSessionMixin):
 
         def verification_finished():
             logger.debug("Verification finished handler.")
-            if not self.task_manager.verify_subtask(subtask_id):
+
+            task_id = self._subtask_to_task(subtask_id, Actor.Requestor)
+
+            is_verification_lenient = (
+                self.task_manager.tasks[task_id]
+                .task_definition.run_verification == RunVerification.Lenient)
+
+            if not is_verification_lenient \
+                    and not self.task_manager.verify_subtask(subtask_id):
                 logger.debug("Verification failure. subtask_id=%r", subtask_id)
                 send_verification_failure()
                 self.dropped()
                 return
-
-            task_id = self._subtask_to_task(subtask_id, Actor.Requestor)
 
             report_computed_task = get_task_message(
                 message_class_name='ReportComputedTask',

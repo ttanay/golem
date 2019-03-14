@@ -1,3 +1,4 @@
+from enum import Enum
 from os import path, remove
 from typing import Any, Dict
 
@@ -11,6 +12,25 @@ from golem.task.taskstate import TaskState
 
 DEFAULT_TIMEOUT = 4 * 3600
 DEFAULT_SUBTASK_TIMEOUT = 20 * 60
+
+
+class RunVerification(Enum):
+    """
+    Disabled:
+        Completely disable verification for the given task and treat all
+        results as valid without performing any verification.
+    Lenient:
+        The verification should be performed and then in the event of negative
+        verification result, the subtask itself should be marked as failed as
+        usual and rescheduled, the provider should also be banned from
+        performing any additional subtasks in this task and a failure should
+        still be reported to the golem monitor. The provider should get a
+        SubtaskResultsAccepted response and be issued a payment just as it
+        would had the result been correct.
+    """
+    Enabled = 'enabled'
+    Lenient = 'lenient'
+    Disabled = 'disabled'
 
 
 class TaskDefaults(object):
@@ -51,6 +71,7 @@ class TaskDefinition(object):
 
         self.max_price = 0
 
+        self.run_verification: RunVerification = RunVerification.Enabled
         self.options = Options()
         self.docker_images = None
         self.compute_on = "cpu"
@@ -88,6 +109,10 @@ class TaskDefinition(object):
             if 'timeout' not in attributes:
                 attributes['timeout'] = attributes.pop('full_task_timeout')
 
+        if pickled_version < 3:
+            if 'run_verification' not in attributes:
+                attributes['run_verification'] = RunVerification.Enabled
+
         for key in attributes:
             setattr(self, key, attributes[key])
 
@@ -121,7 +146,7 @@ class TaskDefinition(object):
         subtask_timeout = timeout_to_string(int(self.subtask_timeout))
         output_path = self.build_output_path()
 
-        return {
+        d = {
             'id': self.task_id,
             'type': self.task_type,
             'compute_on': self.compute_on,
@@ -136,6 +161,11 @@ class TaskDefinition(object):
             },
             'concent_enabled': self.concent_enabled,
         }
+
+        if self.run_verification != RunVerification.Enabled:
+            d['x-run-verification'] = self.run_verification.value
+
+        return d
 
     def build_output_path(self) -> str:
         return self.output_file.rsplit(path.sep, 1)[0]

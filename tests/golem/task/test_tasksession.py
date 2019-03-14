@@ -1128,7 +1128,7 @@ class GetTaskMessageTest(TestCase):
 class SubtaskResultsAcceptedTest(TestCase):
     def setUp(self):
         self.task_session = TaskSession(Mock())
-        self.task_server = Mock()
+        self.task_server = MagicMock()
         self.task_session.conn.server = self.task_server
         self.requestor_keys = cryptography.ECCx(None)
         self.requestor_key_id = encode_hex(self.requestor_keys.raw_pubkey)
