@@ -1,6 +1,6 @@
 # Block for declaring the script parameters.
 Param(
-  $hasInstalled = (AI_GetMsiProperty DOCKER_VERSION),
+  $hasInstalled = (AI_GetMsiProperty OLD_DOCKER_VERSION),
   $pfSFFolder = (AI_GetMsiProperty ProgramFiles64Folder)
 )
 <#
@@ -36,11 +36,12 @@ try {
 	LogWrite ("Caught the exception")
 	LogWrite ($Error[0].Exception)
 }
-
+#>
 
 "docker version installed: " + $hasInstalled
+"PF locaion: " + $pfSFFolder
 
-if ( $hasInstalled -ne "18.3.1" )
+if ( $hasInstalled -ne "18.06.1-ce" )
 {
 	$dockerRmCmd = """" + $pfSFFolder + "golem\docker-machine.exe"" rm -f golem"
 	cmd.exe /c $dockerRmCmd

@@ -470,6 +470,7 @@
     <ROW Action="AI_DATA_SETTER_12" Type="51" Source="AI_RemoveAllTempFiles" Target="[AI_TEMP_FILE_ROLLBACK_INFO]"/>
     <ROW Action="AI_DATA_SETTER_13" Type="51" Source="CustomActionData" Target="AEYAbABhAGcAcwACADMAAQBTAGMAcgBpAHAAdABTAHIAYwBCAGkAbgBhAHIAeQBSAG8AdwBJAGQAAgBwAHIAZQBwAGEAcgBlAGQAbwBjAGsAZQByAGYAbwByAHcAaQBuAGQAbwB3AHMALgBwAHMAMQ=="/>
     <ROW Action="AI_DATA_SETTER_14" Type="51" Source="CustomActionData" Target="We have detected that you are trying to install Golem on Windows 10 Home. Unfortunately, your operating system does not support Hyper-V, but we have kept Docker Toolbox support.&#13;\n&#13;\nPlease download it manually from the official website https://docs.docker.com/toolbox/toolbox_install_windows/ in case you don&apos;t have it already installed on your computer. |Virtualization for Windows Home |MB_OK,MB_ICONINFORMATION,MB_DEFBUTTON1|BTN_PRESSED|[CLIENTPROCESSID]"/>
+    <ROW Action="AI_DATA_SETTER_15" Type="51" Source="CustomActionData" Target="AEkAcwA2ADQAQgBpAHQAAgABAFAAYQByAGEAbQBzAAIAAQBTAGMAcgBpAHAAdAACAEEASQBfAFMAZQB0AE0AcwBpAFAAcgBvAHAAZQByAHQAeQAgAE8ATABEAF8ARABPAEMASwBFAFIAXwBWAEUAUgBTAEkATwBOACAAIgAiAA0ACgANAAoAJABkAG8AYwBrAGUAcgBMAG8AYwBhAHQAaQBvAG4AIAA9ACAAKABBAEkAXwBHAGUAdABNAHMAaQBQAHIAbwBwAGUAcgB0AHkAIABQAHIAbwBnAHIAYQBtAEYAaQBsAGUAcwA2ADQARgBvAGwAZABlAHIAKQAgACsAIAAiAFwAZwBvAGwAZQBtAFwAZABvAGMAawBlAHIALgBlAHgAZQAiAA0ACgBBAEkAXwBTAGUAdABNAHMAaQBQAHIAbwBwAGUAcgB0AHkAIABPAEwARABfAEQATwBDAEsARQBSAF8AVgBFAFIAUwBJAE8ATgAgACgAZwBlAHQALQBpAHQAZQBtACAAJABkAG8AYwBrAGUAcgBMAG8AYwBhAHQAaQBvAG4AKQAuAHYAZQByAHMAaQBvAG4ASQBuAGYAbwAuAGYAaQBsAGUAVgBlAHIAcwBpAG8Abg=="/>
     <ROW Action="AI_DATA_SETTER_16" Type="51" Source="CustomActionData" Target="Since 0.19.0 Golem supports Hyper-V.&#13;\n&#13;\nPlease be aware that if you are using any other virtualization software (e.g. Docker Toolbox, VMware) do not to install Hyper-V as this may cause issues with other applications on your system. &#13;\n&#13;\nBy clicking &quot;Yes&quot; you are agreeing for Hyper-V to be installed. Otherwise please make sure you have Docker Toolbox installed before running Golem. |Hyper-V in Windows Professional |MB_YESNO,MB_ICONINFORMATION,MB_DEFBUTTON1|INSTALL_HYPERV|[CLIENTPROCESSID]"/>
     <ROW Action="AI_DATA_SETTER_2" Type="51" Source="StopProcess_Golemapp" Target="Golemapp.exe"/>
     <ROW Action="AI_DATA_SETTER_3" Type="51" Source="StopProcess_hyperg" Target="hyperg.exe"/>
@@ -511,6 +512,7 @@
     <ROW Action="AI_WinOptFeaturesRollback" Type="11521" Source="WinOptionalFeatures.dll" Target="OnWinOptFeaturesRollback" WithoutSeq="true"/>
     <ROW Action="AI_WinOptFeaturesUninstall" Type="1" Source="WinOptionalFeatures.dll" Target="OnWinOptFeaturesUninstall"/>
     <ROW Action="CheckHyperVAvailability" Type="1" Source="PowerShellScriptLauncher.dll" Target="RunPowerShellScript" Options="1" AdditionalSeq="AI_DATA_SETTER_11"/>
+    <ROW Action="CheckOldDockerVersion" Type="65" Source="PowerShellScriptLauncher.dll" Target="RunPowerShellScript" Options="1" AdditionalSeq="AI_DATA_SETTER_15"/>
     <ROW Action="ExecuteUninstallDockerTb" Type="3122" Source="DOCKER_UNINSTALL_CLEAN" Target="/SILENT"/>
     <ROW Action="ExecuteUninstallPre011" Type="3122" Source="GOLEM_UNINSTALL_CLEAN" Target="/SILENT"/>
     <ROW Action="Execute_CleanDockerVM" Type="65" Source="PowerShellScriptLauncher.dll" Target="RunPowerShellFileScript" Options="134217729" AdditionalSeq="AI_DATA_SETTER_10"/>
@@ -581,8 +583,8 @@
     <ROW Action="AI_GetArpIconPath" Sequence="1401"/>
     <ROW Action="ExecuteUninstallPre011" Condition="( NOT Installed ) AND ( GOLEM_UNINSTALL_CLEAN &lt;&gt; &quot;&quot; )" Sequence="1621"/>
     <ROW Action="StripQuotesFromUninstallPath" Condition="( NOT Installed ) AND ( GOLEM_UNINSTALL &lt;&gt; &quot;&quot; )" Sequence="1619"/>
-    <ROW Action="Execute_CleanDockerVM" Condition="( NOT Installed )" Sequence="1602"/>
-    <ROW Action="AI_DATA_SETTER_10" Condition="( NOT Installed )" Sequence="1601"/>
+    <ROW Action="Execute_CleanDockerVM" Condition="( NOT Installed ) AND ( OLD_DOCKER_VERSION &lt;&gt; &quot;&quot; )" Sequence="1602"/>
+    <ROW Action="AI_DATA_SETTER_10" Condition="( NOT Installed ) AND ( OLD_DOCKER_VERSION &lt;&gt; &quot;&quot; )" Sequence="1601"/>
     <ROW Action="AI_WinOptFeaturesInstall" Condition="(VersionNT &gt;= 600) AND (REMOVE &lt;&gt; &quot;ALL&quot;)" Sequence="1503"/>
     <ROW Action="AI_WinOptFeaturesUninstall" Condition="(VersionNT &gt;= 600) AND (REMOVE=&quot;ALL&quot;)" Sequence="1699"/>
     <ROW Action="AI_WinOptFeaturesCheckReboot" Condition="(VersionNT &gt;= 600)" Sequence="6501"/>
@@ -594,6 +596,8 @@
     <ROW Action="AI_DATA_SETTER_12" Sequence="1501"/>
     <ROW Action="Execute_PrepareDocker" Condition="( NOT Installed ) AND ( (Not Installed) AND (&amp;DockerForWin = 3) )" Sequence="1610"/>
     <ROW Action="AI_DATA_SETTER_13" Condition="( NOT Installed ) AND ( (Not Installed) AND (&amp;DockerForWin = 3) )" Sequence="1609"/>
+    <ROW Action="CheckOldDockerVersion" Condition="( NOT Installed )" Sequence="58"/>
+    <ROW Action="AI_DATA_SETTER_15" Condition="( NOT Installed )" Sequence="57"/>
     <ROW Action="AI_AiRemoveFilesImmediate" Sequence="3499"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
@@ -684,7 +688,6 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqSearchComponent">
     <ROW SearchKey="SystemFolderfile.dll" Prereq="MicrosoftVisualC" SearchType="2" SearchString="HKLM\Software\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64\Version" VerMin="14.0.23026" Order="1" Property="PreReqSearch"/>
-    <ROW SearchKey="_" SearchType="0" SearchString="[APPDIR]\docker.exe" VerMin="0" Order="2" Property="DOCKER_VERSION"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.SynchronizedFolderComponent">
     <ROW Directory_="APPDIR" SourcePath="Installer\Installer_Win\install_tmp" Feature="MainFeature" ExcludePattern="*~|#*#|%*%|._|CVS|.cvsignore|SCCS|vssver.scc|mssccprj.scc|vssver2.scc|.svn|.DS_Store" ExcludeFlags="6"/>
