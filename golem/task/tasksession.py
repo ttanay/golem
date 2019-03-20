@@ -286,7 +286,6 @@ class TaskSession(BasicSafeSession, ResourceHandshakeSessionMixin):
                 local_role=Actor.Requestor,
                 remote_role=Actor.Provider,
             )
-            self.dropped()
 
         self.task_manager.computed_task_received(
             subtask_id,
@@ -972,7 +971,7 @@ class TaskSession(BasicSafeSession, ResourceHandshakeSessionMixin):
             msg.task_to_compute.price,
             msg.payment_ts,
         )
-        self.dropped()
+        self.disconnect(message.base.Disconnect.REASON.NoMoreMessages)
 
     @history.provider_history
     def _react_to_subtask_results_rejected(
