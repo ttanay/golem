@@ -3,6 +3,7 @@ import functools
 import itertools
 import logging
 import os
+import shutil
 import time
 import weakref
 from collections import deque
@@ -321,6 +322,13 @@ class TaskServer(
 
         if subtask_id in self.results_to_send:
             raise RuntimeError("Incorrect subtask_id: {}".format(subtask_id))
+
+        # this is purely for tests
+        if self.config_desc.overwrite_results:
+            for file_path in result['data']:
+                shutil.copyfile(
+                    src=self.config_desc.overwrite_results,
+                    dst=file_path)
 
         header = self.task_keeper.task_headers[task_id]
 

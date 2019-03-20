@@ -191,6 +191,8 @@ class AppConfig:
             disallow_ip_timeout_seconds=DISALLOW_IP_TIMEOUT_SECONDS,
             disallow_id_max_times=DISALLOW_ID_MAX_TIMES,
             disallow_ip_max_times=DISALLOW_IP_MAX_TIMES,
+            # testing
+            overwrite_results=None,
         )
 
         cfg = SimpleConfig(node_config, cfg_file, keep_old=False)

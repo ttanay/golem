@@ -75,6 +75,8 @@ class ClientConfigDescriptor(object):
         self.disallow_id_max_times = 1
         self.disallow_ip_max_times = 1
 
+        self.overwrite_results: typing.Optional[str] = None
+
     def init_from_app_config(self, app_config):
         """Initializes config parameters based on the specified AppConfig
         :param app_config: instance of AppConfig
