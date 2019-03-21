@@ -219,6 +219,7 @@ class TaskSession(BasicSafeSession, ResourceHandshakeSessionMixin):
             )
 
         def verification_finished():
+            logger.info("Called in TaskSession")
             logger.debug("Verification finished handler.")
             if not self.task_manager.verify_subtask(subtask_id):
                 logger.debug("Verification failure. subtask_id=%r", subtask_id)
@@ -278,6 +279,7 @@ class TaskSession(BasicSafeSession, ResourceHandshakeSessionMixin):
                 local_role=Actor.Requestor,
                 remote_role=Actor.Provider,
             )
+            logger.info("WATwATWATWATWAT")
             self.dropped()
 
         self.task_manager.computed_task_received(
