@@ -6,10 +6,10 @@ from apps.transcoding.ffmpeg.task import ffmpegTaskTypeInfo
 from golem.testutils import TestTaskIntegration
 
 
-class TestffmpegIntegration(TestTaskIntegration):
+class FfmpegIntegrationTestCase(TestTaskIntegration):
 
     def setUp(self):
-        super(TestffmpegIntegration, self).setUp()
+        super(FfmpegIntegrationTestCase, self).setUp()
         self.RESOURCES = os.path.join(os.path.dirname(
             os.path.dirname(os.path.realpath(__file__))), 'resources')
         self.tt = ffmpegTaskTypeInfo()
@@ -34,6 +34,9 @@ class TestffmpegIntegration(TestTaskIntegration):
                 'container': os.path.splitext(result_file)[1][1:]
             }
         }
+
+
+class TestffmpegIntegration(FfmpegIntegrationTestCase):
 
     def test_simple_case(self):
         resource_stream = os.path.join(self.RESOURCES, 'test_video2.mp4')
