@@ -47,9 +47,8 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
 
         self.execute_task(task_def)
 
-        asserts = [TestTaskIntegration.check_file_existence(result_file)]
-
-        self.run_asserts(asserts)
+        self.run_asserts([
+            self.check_file_existence(result_file)])
 
     def test_nonexistent_output_dir(self):
         resource_stream = os.path.join(self.RESOURCES, 'test_video2.mp4')
@@ -61,11 +60,9 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
 
         self.execute_task(task_def)
 
-        asserts = [TestTaskIntegration.check_dir_existence(
-            os.path.dirname(result_file)),
-            TestTaskIntegration.check_file_existence(result_file)]
-
-        self.run_asserts(asserts)
+        self.run_asserts([
+            self.check_dir_existence(os.path.dirname(result_file)),
+            self.check_file_existence(result_file)])
 
     def test_nonexistent_resource(self):
         resource_stream = os.path.join(self.RESOURCES,
