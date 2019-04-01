@@ -30,7 +30,7 @@ do_transcode                   \
     "$input_file"              \
     "$input_file_in_container" \
     "$chunk_stem"              \
-    true                       \
+    false                      \
     mpeg2video                 \
     1000k                      \
     mp3                        \

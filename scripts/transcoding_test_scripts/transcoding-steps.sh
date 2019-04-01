@@ -47,7 +47,9 @@ function do_transcode {
     local resolution="${13}"
     local frame_rate="${14}"
 
-    local chunks="$(find "$output_dir/$resources_subdir" -name "$(printf "%q" "$chunk_stem")\[num=*\].m3u8")"
+    local input_format="$(get_extension $input_file)"
+    local output_format="$input_format"
+    local chunks="$(find "$output_dir/$resources_subdir" -name "$(printf "%q" "$chunk_stem")_*.$input_format")"
 
     mkdir --parents "$output_dir/$work_subdir/"
 
@@ -57,7 +59,7 @@ function do_transcode {
             "script_filepath": "/golem/scripts/ffmpeg_task.py",
             "command":         "transcode",
             "track":           "/golem/resources/$(basename "$chunk")",
-            "output_stream":   "/golem/output/$(strip_extension "$(basename "$chunk")")_TC.m3u8",
+            "output_stream":   "/golem/output/$(strip_extension "$(basename "$chunk")")_TC.$output_format",
             "use_playlist":    $use_playlist,
             "targs": {
                 "video": {
