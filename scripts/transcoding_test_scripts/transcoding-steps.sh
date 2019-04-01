@@ -1,6 +1,36 @@
 source "$(dirname ${BASH_SOURCE[0]})/common.sh"
 
 
+function do_extract {
+    local output_dir="$1"
+    local resources_subdir="$2"
+    local work_subdir="$3"
+    local output_subdir="$4"
+    local input_file="$5"
+    local input_file_in_container="$6"
+
+    mkdir --parents "$output_dir/$work_subdir/"
+
+    cat <<EOF > "$output_dir/$work_subdir/params.json"
+    {
+        "script_filepath":  "/golem/scripts/ffmpeg_task.py",
+        "command":          "extract",
+        "input_file":       "$input_file_in_container",
+        "output_file":      "/golem/output/$(strip_extension "$(basename $input_file)")[video-only].$(get_extension "$(basename $input_file)")",
+        "selected_streams": ["v"]
+    }
+EOF
+
+    run_ffmpeg_command      \
+        "$output_dir"       \
+        "$resources_subdir" \
+        "$work_subdir"      \
+        "$output_subdir"    \
+        "$input_file"       \
+        "$input_file_in_container"
+}
+
+
 function do_split {
     local output_dir="$1"
     local resources_subdir="$2"
@@ -108,6 +138,38 @@ function do_merge {
         "command":         "merge",
         "output_stream":   "/golem/output/$output_file_basename",
         "chunks":          $(strings_to_json_list /golem/resources/ $(strip_paths "$chunks"))
+    }
+EOF
+
+    run_ffmpeg_command      \
+        "$output_dir"       \
+        "$resources_subdir" \
+        "$work_subdir"      \
+        "$output_subdir"    \
+        "$input_file"       \
+        "$input_file_in_container"
+}
+
+
+function do_replace {
+    local output_dir="$1"
+    local resources_subdir="$2"
+    local work_subdir="$3"
+    local output_subdir="$4"
+    local input_file="$5"
+    local input_file_in_container="$6"
+    local replacement_source_in_container="$7"
+
+    mkdir --parents "$output_dir/$work_subdir/"
+
+    cat <<EOF > "$output_dir/$work_subdir/params.json"
+    {
+        "script_filepath":    "/golem/scripts/ffmpeg_task.py",
+        "command":            "replace",
+        "input_file":         "$input_file_in_container",
+        "replacement_source": "$replacement_source_in_container",
+        "output_file":        "/golem/output/$(basename $input_file)",
+        "stream_type":        "v"
     }
 EOF
 
