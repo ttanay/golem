@@ -50,28 +50,28 @@ class TestffmpegTranscoding(TempDirFixture):
         parts = 2
         task_id = str(uuid.uuid4())
         output_name = 'test.mp4'
-        playlist_dir = self.dir_manager.get_task_output_dir(task_id)
+        output_dir = self.dir_manager.get_task_output_dir(task_id)
         chunks = self.stream_operator.split_video(
             self.RESOURCE_STREAM, parts,
             self.dir_manager, task_id)
         self.assertEqual(len(chunks), parts)
-        playlists = [os.path.join(playlist_dir, file)
-                     for chunk in chunks for file in chunk
-                     if file.endswith('m3u8')]
+        self.assertEqual(
+            set(os.path.splitext(chunk[0])[1] for chunk in chunks),
+            {'.mp4'})
+        segments = [os.path.join(output_dir, chunk[0]) for chunk in chunks]
 
-        assert len(playlists) == parts
-        tc_playlists = list()
-        for playlist in playlists:
-            name, ext = os.path.splitext(os.path.basename(playlist))
-            transcoded = os.path.join(os.path.dirname(playlist),
-                                      "{}_TC{}".format(name, ext))
-            shutil.copy2(playlist, transcoded)
-            assert os.path.isfile(transcoded)
-            tc_playlists.append(transcoded)
+        assert len(segments) == parts
+        tc_segments = list()
+        for segment in segments:
+            name, ext = os.path.splitext(os.path.basename(segment))
+            transcoded_segment = os.path.join(os.path.dirname(segment),
+                                              "{}_TC{}".format(name, ext))
+            shutil.copy2(segment, transcoded_segment)
+            assert os.path.isfile(transcoded_segment)
+            tc_segments.append(transcoded_segment)
 
-        self.stream_operator.merge_video(output_name, playlist_dir,
-                                         tc_playlists)
-        assert os.path.isfile(os.path.join(playlist_dir, 'merge',
+        self.stream_operator.merge_video(output_name, output_dir, tc_segments)
+        assert os.path.isfile(os.path.join(output_dir, 'merge',
                                            'output', output_name))
 
     def test_merge_video_empty_dir(self):
