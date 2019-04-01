@@ -57,6 +57,8 @@ function run_ffmpeg_command {
     mkdir --parents "$output_dir/$output_subdir"
 
     docker run                                                    \
+        --interactive                                             \
+        --tty                                                     \
         --rm                                                      \
         --volume "$output_dir/$resource_subdir:/golem/resources/" \
         --volume "$output_dir/$work_subdir:/golem/work/"          \
