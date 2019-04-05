@@ -2,8 +2,9 @@ import json
 import os
 
 # pylint: disable=import-error
-import ffmpeg_commands as ffmpeg
 import m3u8
+
+import ffmpeg_commands as ffmpeg
 from m3u8_utils import create_and_dump_m3u8, join_playlists
 
 OUTPUT_DIR = "/golem/output"
