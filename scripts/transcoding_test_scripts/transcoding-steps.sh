@@ -61,6 +61,36 @@ EOF
 }
 
 
+function do_extract_and_split {
+    local output_dir="$1"
+    local resources_subdir="$2"
+    local work_subdir="$3"
+    local output_subdir="$4"
+    local input_file="$5"
+    local input_file_in_container="$6"
+    local parts="$7"
+
+    mkdir --parents "$output_dir/$work_subdir/"
+
+    cat <<EOF > "$output_dir/$work_subdir/params.json"
+    {
+        "script_filepath":  "/golem/scripts/ffmpeg_task.py",
+        "command":          "extract-and-split",
+        "input_file":       "$input_file_in_container",
+        "parts":            $parts
+    }
+EOF
+
+    run_ffmpeg_command      \
+        "$output_dir"       \
+        "$resources_subdir" \
+        "$work_subdir"      \
+        "$output_subdir"    \
+        "$input_file"       \
+        "$input_file_in_container"
+}
+
+
 function do_transcode {
     local output_dir="$1"
     local resources_subdir="$2"
@@ -175,6 +205,41 @@ function do_replace {
         "replacement_source": "$replacement_source_in_container",
         "output_file":        "/golem/output/$(basename $input_file)",
         "stream_type":        "v"
+    }
+EOF
+
+    run_ffmpeg_command      \
+        "$output_dir"       \
+        "$resources_subdir" \
+        "$work_subdir"      \
+        "$output_subdir"    \
+        "$input_file"       \
+        "$input_file_in_container"
+}
+
+
+function do_merge_and_replace {
+    local output_dir="$1"
+    local resources_subdir="$2"
+    local work_subdir="$3"
+    local output_subdir="$4"
+    local input_file="$5"
+    local input_file_in_container="$6"
+    local output_file_basename="$7"
+
+    # Golem just grabs all files from the output. The merge command in the image has
+    # to be able to filter out things that are not videos to be merged on its own.
+    local chunks="$(find "$output_dir/$resources_dir" -name '*')"
+
+    mkdir --parents "$output_dir/$work_subdir/"
+
+    cat <<EOF > "$output_dir/$work_subdir/params.json"
+    {
+        "script_filepath": "/golem/scripts/ffmpeg_task.py",
+        "command":         "merge-and-replace",
+        "input_file":      "$input_file_in_container",
+        "chunks":          $(strings_to_json_list /golem/resources/ $(strip_paths "$chunks")),
+        "output_file":     "/golem/output/$output_file_basename"
     }
 EOF
 
