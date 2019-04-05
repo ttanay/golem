@@ -81,6 +81,11 @@ function do_transcode {
     local output_format="$input_format"
     local chunks="$(find "$output_dir/$resources_subdir" -name "$(printf "%q" "$chunk_stem")_*.$input_format")"
 
+    if [[ -z "$chunks" ]]; then
+        echo "ERROR: No input files for the transcoding step found."
+        exit 1
+    fi
+
     mkdir --parents "$output_dir/$work_subdir/"
 
     for chunk in $chunks; do
