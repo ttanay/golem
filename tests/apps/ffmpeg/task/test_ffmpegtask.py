@@ -191,7 +191,7 @@ class TestffmpegTask(TempDirFixture):
         self.assertEqual(extra_data['script_filepath'],
                          '/golem/scripts/ffmpeg_task.py')
         self.assertEqual(extra_data['track'],
-                         '/golem/resources/test_video_0.mp4')
+                         '/golem/resources/test_video[video-only]_0.mp4')
         vargs = extra_data['targs']['video']
         aargs = extra_data['targs']['audio']
         self.assertEqual(vargs['codec'], d['options']['video']['codec'])
@@ -203,7 +203,7 @@ class TestffmpegTask(TempDirFixture):
         self.assertEqual(aargs['codec'], d['options']['audio']['codec'])
         self.assertEqual(aargs['bitrate'], d['options']['audio']['bit_rate'])
         self.assertEqual(extra_data['output_stream'],
-                         '/golem/output/test_video_0_TC.mp4')
+                         '/golem/output/test_video[video-only]_0_TC.mp4')
 
     def test_less_subtasks_than_requested(self):
         d = self._task_dictionary
