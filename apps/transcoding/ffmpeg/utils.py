@@ -60,7 +60,7 @@ class StreamOperator:
                      format(split_result_file, parts))
         with open(split_result_file) as f:
             params = json.load(f)  # FIXME: check status of splitting
-            if params.get('status', 'Success') is not 'Success':
+            if params.get('status', 'Success') != 'Success':
                 raise ffmpegException('Splitting video failed')
             streams_list = list(map(lambda x: (x.get('video_segment'),
                                                x.get('playlist')),
@@ -92,7 +92,7 @@ class StreamOperator:
         for file in files:
             if not os.path.isfile(file):
                 raise ffmpegException("Missing result file: {}".format(file))
-            elif os.path.dirname(file) != dir:
+            if os.path.dirname(file) != dir:
                 raise ffmpegException("Result file: {} should be in the \
                 proper directory: {}".format(file, dir))
 
@@ -133,11 +133,17 @@ class StreamOperator:
         if env:
             EnvironmentsManager().add_environment(env)
 
-        dtt = DockerTaskThread(docker_images=[DockerImage(
-            repository=FFMPEG_DOCKER_IMAGE, tag=FFMPEG_DOCKER_TAG)],
+        dtt = DockerTaskThread(
+            docker_images=[
+                DockerImage(
+                    repository=FFMPEG_DOCKER_IMAGE,
+                    tag=FFMPEG_DOCKER_TAG
+                )
+            ],
             extra_data=extra_data,
             dir_mapping=dir_mapping,
-            timeout=timeout)
+            timeout=timeout
+        )
 
         dtt.run()
         if dtt.error:
