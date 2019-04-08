@@ -1,4 +1,3 @@
-import os
 import shutil
 import uuid
 from unittest import mock
@@ -111,15 +110,17 @@ class TestffmpegTranscoding(TempDirFixture, DockerTestCase):
         resource_dir, output_dir, work_dir, chunks = \
             self.stream_operator._prepare_merge_job(self.tempdir, [])
 
-        assert len(chunks) == 0
-        assert resource_dir == self.tempdir
-        assert os.path.isdir(output_dir)
-        assert output_dir == os.path.join(self.tempdir,
-                                          'merge', 'output')
-        assert os.path.isdir(output_dir)
-        assert work_dir == os.path.join(self.tempdir,
-                                        'merge', 'work')
-        assert os.path.isdir(work_dir)
+        self.assertEqual(len(chunks), 0)
+        self.assertEqual(resource_dir, self.tempdir)
+        self.assertTrue(os.path.isdir(output_dir))
+        self.assertEqual(
+            output_dir,
+            os.path.join(self.tempdir, 'merge', 'output'))
+        self.assertTrue(os.path.isdir(output_dir))
+        self.assertEqual(
+            work_dir,
+            os.path.join(self.tempdir, 'merge', 'work'))
+        self.assertTrue(os.path.isdir(work_dir))
 
     def test_prepare_merge_job_nonexistent_results(self):
         with self.assertRaises(ffmpegException):
@@ -142,8 +143,10 @@ class TestffmpegDockerJob(TestDockerJob):
         return "1.0"
 
     def test_ffmpeg_trancoding_job(self):
-        stream_file = os.path.join(os.path.join(os.path.dirname(
-            os.path.dirname(os.path.realpath(__file__))), 'resources'),
+        stream_file = os.path.join(
+            os.path.join(
+                os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                'resources'),
             'test_video.mp4')
         shutil.copy(str(stream_file), self.resources_dir)
         out_stream_path = os.path.join(DockerJob.OUTPUT_DIR,
