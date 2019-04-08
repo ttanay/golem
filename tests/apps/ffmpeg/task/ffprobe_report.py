@@ -36,7 +36,7 @@ class FfprobeFormatReport:
     @property
     def start_time(self):
         try:
-            return self._raw_report['format']['start_time']
+            return FuzzyDuration(self._raw_report['format']['start_time'], 0)
         except KeyError:
             return 'not supported- key does not exists'
 
