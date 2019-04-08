@@ -43,7 +43,7 @@ class ffmpegTask(TranscodingTask):
 
         output_stream_path = pathlib.Path(os.path.join(DockerJob.OUTPUT_DIR,
                                                        filename + '_TC'))
-        output_stream_path = str(output_stream_path.with_suffix(
+        output_stream = str(output_stream.with_suffix(
             '.{}'.format('m3u8')))
 
         resolution = video_params.resolution
@@ -64,7 +64,7 @@ class ffmpegTask(TranscodingTask):
                 'resolution': resolution,
                 'frame_rate': video_params.frame_rate
             },
-            'output_stream': output_stream_path,
+            'output_stream': output_stream,
             'use_playlist': transcoding_options.use_playlist,
             'command': Commands.TRANSCODE.value[0],
             'script_filepath': FFMPEG_BASE_SCRIPT
