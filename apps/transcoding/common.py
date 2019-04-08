@@ -25,12 +25,22 @@ def unsupported(name: str):
 
 
 class VideoCodec(Enum):
-    H_264 = 'h264'
+    AV1 = 'av1'           # Alliance for Open Media AV1
+    FLV1 = 'flv1'         # FLV / Sorenson Spark / Sorenson H.263 (Flash Video)
+    H_263 = 'h263'        # H.263 / H.263-1996,
+                          # H.263+ / H.263-1998 / H.263 version 2
+    H_264 = 'h264'        # H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10
     H_265 = 'h265'
-    HEVC = 'HEVC'
-    MPEG_1 = 'mpeg1video'
-    MPEG_2 = 'mpeg2video'
-    MPEG_4 = 'mpeg4'
+    HEVC = 'HEVC'         # H.265 / HEVC (High Efficiency Video Coding)
+    MJPEG = 'mjpeg'       # Motion JPEG
+    MPEG_1 = 'mpeg1video' # MPEG-1 video
+    MPEG_2 = 'mpeg2video' # MPEG-2 video
+    MPEG_4 = 'mpeg4'      # MPEG-4 part 2
+    THEORA = 'theora'     # Theora
+    VP8 = 'vp8'           # On2 VP8
+    VP9 = 'vp9'           # Google VP9
+    WMV1 = 'wmv1'         # Windows Media Video 7
+    WMV2 = 'wmv2'         # Windows Media Video 8
 
     @staticmethod
     @HandleValueError(unsupported)
@@ -39,8 +49,15 @@ class VideoCodec(Enum):
 
 
 class AudioCodec(Enum):
-    AAC = 'aac'
-    MP3 = 'mp3'
+    AAC = 'aac'        # AAC (Advanced Audio Coding)
+    AC3 = 'ac3'        # ATSC A/52A (AC-3)
+    AMR_NB = 'amr_nb'  # AMR-NB (Adaptive Multi-Rate NarrowBand)
+    MP2 = 'mp2'        # MP2 (MPEG audio layer 2)
+    MP3 = 'mp3'        # MP3 (MPEG audio layer 3)
+    OPUS = 'opus'      # Opus (Opus Interactive Audio Codec)
+    PCM_U8 = 'pcm_u8'  # PCM unsigned 8-bit
+    WMAV2 = 'wmav2'    # Windows Media Audio 2
+    VORBIS = 'vorbis'  # Vorbis
 
     @staticmethod
     @HandleValueError(unsupported)
@@ -49,10 +66,22 @@ class AudioCodec(Enum):
 
 
 class Container(Enum):
-    MP4 = 'mp4'
-    AVI = 'avi'
-    MKV = 'mkv'
-    TS = 'ts'
+    ASF = 'asf'     # ASF (Advanced / Active Streaming Format)
+    FLV = 'flv'     # FLV (Flash Video)
+    M4V = 'm4v'     # QuickTime / MOV
+    MOV = 'mov'     # QuickTime / MOV
+    MP4 = 'mp4'     # QuickTime / MOV
+    MPEG = 'mpeg'   # MPEG-PS (MPEG-2 Program Stream)
+    MPG = 'mpg'     # raw MPEG video
+    MTS = 'mts'     # MPEG-TS (MPEG-2 Transport Stream)
+    AVI = 'avi'     # AVI (Audio Video Interleaved)
+    MKV = 'mkv'     # Matroska / WebM
+    OGV = 'ogv'     # Ogg
+    TS = 'ts'       # MPEG-TS (MPEG-2 Transport Stream)
+    VOB = 'vob'     # MPEG-PS (MPEG-2 Program Stream)
+    WEBM = 'webm'   # Matroska / WebM
+    WMV = 'wmv'     # ASF (Advanced / Active Streaming Format)
+    X_3GP = '3gp'   # QuickTime / MOV
 
     @staticmethod
     @HandleValueError(unsupported)
@@ -73,7 +102,29 @@ CONTAINER_SUPPORTED_CODECS = {
     Container.MP4: ([VideoCodec.H_264, VideoCodec.H_265, VideoCodec.HEVC,
                      VideoCodec.MPEG_1, VideoCodec.MPEG_2, VideoCodec.MPEG_4],
                     [AudioCodec.AAC, AudioCodec.MP3]),
+    Container.ASF: ([], []),
+    Container.FLV: ([], []),
+    Container.M4V: ([], []),
+    Container.MOV: ([], []),
+    Container.MPEG: ([], []),
+    Container.MPG: ([], []),
+    Container.MTS: ([], []),
+    Container.OGV: ([], []),
+    Container.TS: ([], []),
+    Container.WMV: ([], []),
+    Container.VOB: ([], []),
+    Container.WEBM: ([], []),
+    Container.X_3GP: ([], []),
 }
+
+# Make sure that the definitions above satisfy our assumptions:
+assert set(CONTAINER_SUPPORTED_CODECS) == set(Container)
+assert all(
+    set(CONTAINER_SUPPORTED_CODECS[c][0]).issubset(set(VideoCodec))
+    for c in Container)
+assert all(
+    set(CONTAINER_SUPPORTED_CODECS[c][1]).issubset(set(AudioCodec))
+    for c in Container)
 
 
 def is_type_of(t: Type):
