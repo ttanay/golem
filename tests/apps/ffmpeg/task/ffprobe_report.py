@@ -41,6 +41,14 @@ class FfprobeFormatReport:
             return 'not supported- key does not exists'
 
 
+    @property
+    def stream_reports(self):
+        list_of_reports = []
+        for stream in self._raw_report['streams']:
+            if 'video' in stream['codec_type']:
+                list_of_reports.append(FfprobeVideoStreamReport(stream))
+        return list_of_reports
+
     def diff(self, format_report: dict, overrides: dict):
         differences = list()
         for attr in self.ATTRS_TO_CHECK:
