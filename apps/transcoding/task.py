@@ -94,11 +94,9 @@ class TranscodingTask(CoreTask):  # pylint: disable=too-many-instance-attributes
             logger.warning('%s subtasks was requested but video splitting '
                            'process resulted in %s chunks.',
                            self.total_tasks, len(chunks))
-        streams = list(map(lambda x: x[0] if os.path.isabs(x[0]) else os.path
-                           .join(task_output_dir, x[0]), chunks))
-        playlists = list(map(lambda x: x[1] if os.path.isabs(x[1]) else os.path
-                             .join(task_output_dir, x[1]), chunks))
-        self.task_resources = streams + playlists
+        streams = list(map(lambda x: x if os.path.isabs(x) else os.path
+                           .join(task_output_dir, x), chunks))
+        self.task_resources = streams
         self.chunks = streams
         self.total_tasks = len(chunks)
         self.task_definition.subtasks_count = len(chunks)

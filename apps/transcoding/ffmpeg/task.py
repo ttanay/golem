@@ -28,7 +28,7 @@ class ffmpegTask(TranscodingTask):
         transcoding_options = self.task_definition.options
         video_params = transcoding_options.video_params
         audio_params = transcoding_options.audio_params
-        if subtask_num >= len(self.task_resources) // 2:
+        if subtask_num >= len(self.task_resources):
             raise AssertionError('Requested number subtask {} is greater than '
                                  'number of resources [size={}]'
                                  .format(subtask_num, len(self.task_resources)))

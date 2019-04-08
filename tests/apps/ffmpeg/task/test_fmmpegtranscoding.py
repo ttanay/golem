@@ -56,9 +56,9 @@ class TestffmpegTranscoding(TempDirFixture):
             self.dir_manager, task_id)
         self.assertEqual(len(chunks), parts)
         self.assertEqual(
-            set(os.path.splitext(chunk[0])[1] for chunk in chunks),
+            set(os.path.splitext(chunk)[1] for chunk in chunks),
             {'.mp4'})
-        segments = [os.path.join(output_dir, chunk[0]) for chunk in chunks]
+        segments = [os.path.join(output_dir, chunk) for chunk in chunks]
 
         assert len(segments) == parts
         tc_segments = list()
@@ -89,8 +89,7 @@ class TestffmpegTranscoding(TempDirFixture):
     def test_collect_nonexistent_results(self):
         with self.assertRaises(ffmpegException):
             self.stream_operator._collect_files(self.tempdir,
-                                                ['/tmp/testtest_TC.m3u8',
-                                                 '/tmp/testtest_TC.ts'])
+                                                ['/tmp/testtest_TC.ts'])
 
     def test_collect_files_second_result_nonexistent(self):
         result_path = self.RESOURCE_STREAM.replace(
@@ -135,16 +134,13 @@ class TestffmpegTranscoding(TempDirFixture):
         with self.assertRaises(ffmpegException):
             self.stream_operator._prepare_merge_job(
                 self.tempdir,
-                [
-                    '/tmp/testtest_TC.m3u8',
-                    '/tmp/testtest_TC.ts',
-                ])
+                ['/tmp/testtest_TC.ts'])
 
     def test_merge_and_replace_nonexistent_files(self):
         with self.assertRaises(ffmpegException):
             self.stream_operator.merge_and_replace_video_streams(
                 self.RESOURCE_STREAM,
-                ['test_TC.m3u8', 'test_TC.ts'],
+                ['test_TC.ts'],
                 'output.mp4',
                 self.tempdir)
 
