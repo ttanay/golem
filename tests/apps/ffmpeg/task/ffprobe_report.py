@@ -117,3 +117,63 @@ class FuzzyDuration:
 
     def __repr__(self):
         return f'FuzzyDuration({self._duration}, {self._tolerance})'
+
+
+class FfprobeVideoStreamReport:
+
+    ATTRS_TO_CHECK = [
+        'codec_name',
+        'start_time',
+        'duration',
+        'resolution',
+    ]
+
+    def __init__(self, raw_report: dict):
+        self._raw_report = raw_report
+
+    @property
+    def codec_name(self):
+        try:
+            return self._raw_report['codec_name']
+        except KeyError:
+            return None
+
+    @property
+    def start_time(self):
+        return FuzzyDuration(self._raw_report['start_time'], 0)
+
+    @property
+    def duration(self):
+        try:
+            return FuzzyDuration(self._raw_report['duration'], 0)
+        except KeyError:
+            return 'not supported- key does not exists'
+
+    @property
+    def resolution(self):
+        try:
+            return self._raw_report['resolution']
+        except KeyError:
+            try:
+                return self._raw_report['width'], self._raw_report['height']
+            except:
+                return 'not supported- key does not exists'
+
+    def diff(self, format_report: dict, overrides: dict) -> list:
+        differences = list()
+        for attr in self.ATTRS_TO_CHECK:
+            original_value = getattr(self, attr)
+            modified_value = getattr(format_report, attr)
+
+            if modified_value != original_value:
+                diff_dict = {
+                    'location': 'video',
+                    'attribute': attr,
+                    'original value': str(original_value),
+                    'modified value': str(modified_value),
+                }
+                differences.append(diff_dict)
+        return differences
+
+    def __eq__(self, other):
+        return len(self.diff(other, {})) == 0
