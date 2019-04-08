@@ -97,24 +97,289 @@ class Container(Enum):
 
 ALL_SUPPORTED_CODECS = ([c for c in VideoCodec], [c for c in AudioCodec])
 CONTAINER_SUPPORTED_CODECS = {
-    Container.AVI: ([VideoCodec.MPEG_4], [AudioCodec.AAC]),
-    Container.MKV: ([], []),
-    Container.MP4: ([VideoCodec.H_264, VideoCodec.H_265, VideoCodec.HEVC,
-                     VideoCodec.MPEG_1, VideoCodec.MPEG_2, VideoCodec.MPEG_4],
-                    [AudioCodec.AAC, AudioCodec.MP3]),
-    Container.ASF: ([], []),
-    Container.FLV: ([], []),
-    Container.M4V: ([], []),
-    Container.MOV: ([], []),
-    Container.MPEG: ([], []),
-    Container.MPG: ([], []),
-    Container.MTS: ([], []),
-    Container.OGV: ([], []),
-    Container.TS: ([], []),
-    Container.WMV: ([], []),
-    Container.VOB: ([], []),
-    Container.WEBM: ([], []),
-    Container.X_3GP: ([], []),
+    Container.AVI: (
+        [
+            VideoCodec.FLV1,
+            VideoCodec.H_263,
+            VideoCodec.H_264,
+            VideoCodec.HEVC,
+            VideoCodec.MJPEG,
+            VideoCodec.MPEG_1,
+            VideoCodec.MPEG_2,
+            VideoCodec.MPEG_4,
+            VideoCodec.THEORA,
+            VideoCodec.VP8,
+            VideoCodec.VP9,
+            VideoCodec.WMV1,
+            VideoCodec.WMV2,
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.MP3,
+        ],
+    ),
+    Container.MKV: (
+        [
+            VideoCodec.FLV1,
+            VideoCodec.H_263,
+            VideoCodec.H_264,
+            VideoCodec.HEVC,
+            VideoCodec.MJPEG,
+            VideoCodec.MPEG_1,
+            VideoCodec.MPEG_2,
+            VideoCodec.MPEG_4,
+            VideoCodec.THEORA,
+            VideoCodec.VP8,
+            VideoCodec.VP9,
+            VideoCodec.WMV1,
+            VideoCodec.WMV2,
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.MP3,
+            AudioCodec.VORBIS,
+        ],
+    ),
+    Container.MP4: (
+        [
+            VideoCodec.H_264,
+            VideoCodec.HEVC,
+            VideoCodec.MJPEG,
+            VideoCodec.MPEG_1,
+            VideoCodec.MPEG_2,
+            VideoCodec.MPEG_4,
+            VideoCodec.VP9,
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.MP3,
+        ]
+    ),
+
+    Container.ASF: (
+        [
+            VideoCodec.FLV1,
+            VideoCodec.H_263,
+            VideoCodec.H_264,
+            #VideoCodec.HEVC,   # ffmpeg complains about incorrect codec params
+            VideoCodec.MJPEG,
+            VideoCodec.MPEG_1,
+            VideoCodec.MPEG_2,
+            VideoCodec.MPEG_4,
+            VideoCodec.THEORA,
+            VideoCodec.VP8,
+            VideoCodec.VP9,
+            VideoCodec.WMV1,
+            VideoCodec.WMV2,
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.MP3,
+        ],
+    ),
+    Container.FLV: (
+        [
+            VideoCodec.FLV1,
+            VideoCodec.H_264,
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.MP3,
+        ],
+    ),
+    Container.M4V: (
+        [
+            VideoCodec.H_264,
+            VideoCodec.MPEG_4,
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.AC3,
+            AudioCodec.MP3,
+        ],
+    ),
+    Container.MOV: (
+        [
+            VideoCodec.FLV1,   # ffmpeg warns that the file may be unplayable
+            VideoCodec.H_263,
+            VideoCodec.H_264,
+            VideoCodec.HEVC,
+            VideoCodec.MJPEG,
+            VideoCodec.MPEG_1,
+            VideoCodec.MPEG_2,
+            VideoCodec.MPEG_4,
+            VideoCodec.THEORA, # ffmpeg warns that the file may be unplayable
+            VideoCodec.WMV1,   # ffmpeg warns that the file may be unplayable
+            VideoCodec.WMV2,   # ffmpeg warns that the file may be unplayable
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.MP3,
+            AudioCodec.PCM_U8,
+        ],
+    ),
+    Container.MPEG: (
+        [
+            VideoCodec.FLV1,
+            VideoCodec.H_263,
+            VideoCodec.H_264,
+            VideoCodec.HEVC,
+            VideoCodec.MJPEG,
+            VideoCodec.MPEG_1,
+            VideoCodec.MPEG_2,
+            VideoCodec.MPEG_4,
+            VideoCodec.THEORA,
+            VideoCodec.VP8,
+            VideoCodec.VP9,
+            VideoCodec.WMV1,
+            VideoCodec.WMV2,
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.MP2,
+            AudioCodec.MP3,
+        ],
+    ),
+    Container.MPG: (
+        [
+            VideoCodec.FLV1,
+            VideoCodec.H_263,
+            VideoCodec.H_264,
+            VideoCodec.HEVC,
+            VideoCodec.MJPEG,
+            VideoCodec.MPEG_1,
+            VideoCodec.MPEG_2,
+            VideoCodec.MPEG_4,
+            VideoCodec.THEORA,
+            VideoCodec.VP8,
+            VideoCodec.VP9,
+            VideoCodec.WMV1,
+            VideoCodec.WMV2,
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.MP2,
+            AudioCodec.MP3,
+        ],
+    ),
+    Container.MTS: (
+        [
+            VideoCodec.FLV1,
+            VideoCodec.H_263,
+            VideoCodec.H_264,
+            VideoCodec.HEVC,
+            VideoCodec.MJPEG,
+            VideoCodec.MPEG_1,
+            VideoCodec.MPEG_2,
+            VideoCodec.MPEG_4,
+            VideoCodec.THEORA,
+            VideoCodec.VP8,
+            VideoCodec.VP9,
+            VideoCodec.WMV1,
+            VideoCodec.WMV2,
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.AC3,
+            AudioCodec.MP3,
+        ],
+    ),
+    Container.OGV: (
+        [
+            VideoCodec.THEORA,
+            VideoCodec.VP8,
+        ],
+        [
+            AudioCodec.OPUS,
+            AudioCodec.VORBIS,
+        ],
+    ),
+    Container.TS: (
+        [
+            VideoCodec.FLV1,
+            VideoCodec.H_263,
+            VideoCodec.H_264,
+            VideoCodec.HEVC,
+            VideoCodec.MJPEG,
+            VideoCodec.MPEG_1,
+            VideoCodec.MPEG_2,
+            VideoCodec.MPEG_4,
+            VideoCodec.THEORA,
+            VideoCodec.VP8,
+            VideoCodec.VP9,
+            VideoCodec.WMV1,
+            VideoCodec.WMV2,
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.MP3,
+        ],
+    ),
+    Container.WMV: (
+        [
+            VideoCodec.FLV1,
+            VideoCodec.H_263,
+            VideoCodec.H_264,
+            #VideoCodec.HEVC,   # ffmpeg complains about incorrect codec params
+            VideoCodec.MJPEG,
+            VideoCodec.MPEG_1,
+            VideoCodec.MPEG_2,
+            VideoCodec.MPEG_4,
+            VideoCodec.THEORA,
+            VideoCodec.VP8,
+            VideoCodec.VP9,
+            VideoCodec.WMV1,
+            VideoCodec.WMV2,
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.MP3,
+            AudioCodec.WMAV2,
+        ],
+    ),
+    Container.VOB: (
+        [
+            VideoCodec.FLV1,
+            VideoCodec.H_263,
+            VideoCodec.H_264,
+            VideoCodec.HEVC,
+            VideoCodec.MJPEG,
+            VideoCodec.MPEG_1,
+            VideoCodec.MPEG_2,
+            VideoCodec.MPEG_4,
+            VideoCodec.THEORA,
+            VideoCodec.VP8,
+            VideoCodec.VP9,
+            VideoCodec.WMV1,
+            VideoCodec.WMV2,
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.MP2,
+            AudioCodec.MP3,
+        ],
+    ),
+    Container.WEBM: (
+        [
+            VideoCodec.VP8,
+            VideoCodec.VP9,
+        ],
+        [
+            AudioCodec.OPUS,
+            AudioCodec.VORBIS,
+        ],
+    ),
+    Container.X_3GP: (
+        [
+            VideoCodec.H_263,
+            VideoCodec.H_264,
+            VideoCodec.MPEG_4,
+        ],
+        [
+            AudioCodec.AAC,
+            AudioCodec.AMR_NB,
+        ],
+    ),
 }
 
 # Make sure that the definitions above satisfy our assumptions:
