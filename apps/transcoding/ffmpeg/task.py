@@ -64,7 +64,6 @@ class ffmpegTask(TranscodingTask):
                 'frame_rate': video_params.frame_rate
             },
             'output_stream': output_stream,
-            'use_playlist': transcoding_options.use_playlist,
             'command': Commands.TRANSCODE.value[0],
             'script_filepath': FFMPEG_BASE_SCRIPT
         }
