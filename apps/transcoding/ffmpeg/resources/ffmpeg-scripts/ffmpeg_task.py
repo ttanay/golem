@@ -2,11 +2,7 @@ import json
 import re
 import os
 
-# pylint: disable=import-error
-import m3u8
-
 import ffmpeg_commands as ffmpeg
-from m3u8_utils import create_and_dump_m3u8
 
 OUTPUT_DIR = "/golem/output"
 WORK_DIR = "/golem/work"
@@ -28,22 +24,18 @@ def do_extract(input_file, output_file, selected_streams):
 def do_split(path_to_stream, parts):
     video_length = ffmpeg.get_video_len(path_to_stream)
 
-    split_file = ffmpeg.split_video(path_to_stream,
-                                    OUTPUT_DIR, video_length / parts)
-    m3u8_main_list = m3u8.load(split_file)
+    segment_list_path = ffmpeg.split_video(
+        path_to_stream,
+        OUTPUT_DIR,
+        video_length / parts)
 
-    results = dict()
-    segments_list = list()
+    with open(segment_list_path) as segment_list_file:
+        segment_filenames = segment_list_file.read().splitlines()
 
-    for segment in m3u8_main_list.segments:
-        segment_info = dict()
-
-        segment_info["video_segment"] = segment.uri
-
-        segments_list.append(segment_info)
-
-    results["main_list"] = split_file
-    results["segments"] = segments_list
+    results = {
+        'main_list': segment_list_path,
+        'segments': [{'video_segment': s} for s in segment_filenames],
+    }
 
     results_file = os.path.join(OUTPUT_DIR, "split-results.json")
     with open(results_file, 'w') as f:
