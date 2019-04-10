@@ -1,8 +1,14 @@
 import json
 import os
-from typing import Optional
+from typing import Any, Collection, Dict, List, Optional
 
 from apps.transcoding.ffmpeg.utils import StreamOperator
+
+
+DiffDict = Dict[str, Any]
+Diff = List[DiffDict]
+StreamOverrides = Dict[str, Any]
+FileOverrides = Dict[str, StreamOverrides]
 
 
 class UnsupportedCodecType(Exception):
@@ -10,12 +16,11 @@ class UnsupportedCodecType(Exception):
 
 
 class FfprobeFormatReport:
-
-    ATTRS_TO_CHECK = [
+    ATTRIBUTES_TO_COMPARE = {
         'stream_types',
         'duration',
         'start_time',
-    ]
+    }
 
     def __init__(self, raw_report: dict):
         self._raw_report = raw_report
@@ -77,30 +82,167 @@ class FfprobeFormatReport:
         value = self._raw_report.get('format', {}).get('start_time', None)
         return FuzzyDuration(value, 0)
 
-    def diff(self, format_report: dict, overrides: Optional[dict] = None):
+    @classmethod
+    def _classify_streams(cls,
+                          stream_reports: List['FfprobeStreamReport'],
+                         ) -> Dict[str, List['FfprobeStreamReport']]:
+        reports_by_type: Dict[str, List['FfprobeStreamReport']] = {}
+        for report in stream_reports:
+            reports_by_type[report.codec_type] = (
+                reports_by_type.get(report.codec_type, []) + [report]
+            )
+
+        return reports_by_type
+
+    @classmethod
+    def _diff_streams_same_type(cls,
+                                original_stream_reports:
+                                List['FfprobeStreamReport'],
+                                modified_stream_reports:
+                                List['FfprobeStreamReport'],
+                                overrides: Optional[FileOverrides] = None
+                               ) -> Diff:
+        assert len(
+            set(r.codec_type for r in original_stream_reports) |
+            set(r.codec_type for r in modified_stream_reports)
+        ) == 1, "All stream reports must have the same codec type"
+
         if overrides is None:
             overrides = {}
 
-        differences = list()
-        for attr in self.ATTRS_TO_CHECK:
-            original_value = getattr(self, attr)
-            modified_value = getattr(format_report, attr)
+        diffs: Diff = []
 
-            if 'streams' in overrides and attr in overrides['streams']:
-                modified_value = overrides['streams'][attr]
+        unmatched_reports = set(range(len(modified_stream_reports)))
+        for original_idx, original_report in enumerate(original_stream_reports):
+            shortest_diff: Optional[Diff] = None
+            for modified_idx in unmatched_reports:
+                stream_overrides = overrides.get(
+                    modified_stream_reports[modified_idx].codec_type,
+                    {}
+                )
 
-            if 'format' in overrides and attr in overrides['format']:
-                modified_value = overrides['format'][attr]
+                new_diff = original_report.diff(
+                    modified_stream_reports[modified_idx],
+                    stream_overrides,
+                )
+
+                if shortest_diff is None or len(shortest_diff) > len(new_diff):
+                    assert new_diff is not None
+                    shortest_diff = new_diff
+
+                if len(shortest_diff) == 0:  # pylint: disable=len-as-condition
+                    break
+
+            if shortest_diff is not None:
+                for diff_dict in shortest_diff:
+                    diff_dict['original_stream_index'] = original_idx
+
+                    # shortest_diff not being None guarantees that the loop
+                    # ran at least once so modified_idx is not undefined
+                    diff_dict[
+                        'modified_stream_index'
+                    ] = modified_idx  # pylint: disable=undefined-loop-variable
+
+                diffs += shortest_diff
+                unmatched_reports.remove(
+                    modified_idx  # pylint: disable=undefined-loop-variable
+                )
+            else:
+                diffs.append({
+                    'location': original_stream_reports[0].codec_type,
+                    'original_stream_index': original_idx,
+                    'modified_stream_index': None,
+                    'reason': "No matching stream",
+                })
+
+        for modified_idx in unmatched_reports:
+            diffs.append({
+                'location': modified_stream_reports[0].codec_type,
+                'original_stream_index': None,
+                'modified_stream_index': modified_idx,
+                'reason': "No matching stream",
+            })
+
+        return diffs
+
+    @classmethod
+    def _diff_streams(cls,
+                      original_stream_reports: List['FfprobeStreamReport'],
+                      modified_stream_reports: List['FfprobeStreamReport'],
+                      overrides: Optional[FileOverrides] = None
+                     ) -> Diff:
+
+        original_reports_by_type = cls._classify_streams(
+            original_stream_reports
+        )
+        modified_reports_by_type = cls._classify_streams(
+            modified_stream_reports
+        )
+        codec_types_in_buckets = (
+            set(original_reports_by_type) |
+            set(modified_reports_by_type)
+        )
+
+        stream_differences: Diff = []
+        for codec_type in codec_types_in_buckets:
+            stream_differences += cls._diff_streams_same_type(
+                original_reports_by_type.get(codec_type, []),
+                modified_reports_by_type.get(codec_type, []),
+                overrides,
+            )
+
+        return stream_differences
+
+    # pylint: disable=unsubscriptable-object
+    # FIXME: pylint bug, see https://github.com/PyCQA/pylint/issues/2377
+    @classmethod
+    def _diff_attributes(cls,
+                         attributes_to_compare: Collection[str],
+                         original_report: 'FfprobeFormatReport',
+                         modified_report: 'FfprobeFormatReport',
+                         overrides: Optional[StreamOverrides] = None) -> Diff:
+        if overrides is None:
+            overrides = {}
+
+        differences = []
+        for attribute in attributes_to_compare:
+            original_value = getattr(original_report, attribute)
+
+            if attribute in overrides:
+                modified_value = overrides[attribute]
+            else:
+                modified_value = getattr(modified_report, attribute)
 
             if modified_value != original_value:
                 diff_dict = {
                     'location': 'format',
-                    'attribute': attr,
-                    'original value': original_value,
-                    'modified value': modified_value,
+                    'attribute': attribute,
+                    'original_value': original_value,
+                    'modified_value': modified_value,
+                    'reason': "Different attribute values",
                 }
                 differences.append(diff_dict)
+
         return differences
+
+    def diff(self,
+             modified_report: 'FfprobeFormatReport',
+             overrides: Optional[FileOverrides] = None) -> Diff:
+
+        format_differences = self._diff_attributes(
+            self.ATTRIBUTES_TO_COMPARE,
+            self,
+            modified_report,
+            overrides.get('format', {}) if overrides is not None else None,
+        )
+
+        stream_differences = self._diff_streams(
+            self.stream_reports,
+            modified_report.stream_reports,
+            overrides,
+        )
+
+        return format_differences + stream_differences
 
     def __eq__(self, other):
         return len(self.diff(other, {})) == 0
@@ -159,10 +301,10 @@ class FuzzyDuration:
 
 
 class FfprobeStreamReport:
-    ATTRS_TO_CHECK = [
+    ATTRIBUTES_TO_COMPARE = {
         'codec_type',
         'codec_name',
-    ]
+    }
 
     def __init__(self, raw_report: dict):
         self._raw_report = raw_report
@@ -175,16 +317,63 @@ class FfprobeStreamReport:
     def codec_name(self):
         return self._raw_report.get('codec_name', None)
 
+    # pylint: disable=unsubscriptable-object
+    # FIXME: pylint bug, see https://github.com/PyCQA/pylint/issues/2377
+    @classmethod
+    def _diff_attributes(cls,
+                         attributes_to_compare: Collection[str],
+                         original_stream_report: 'FfprobeStreamReport',
+                         modified_stream_report: 'FfprobeStreamReport',
+                         overrides: Optional[StreamOverrides] = None) -> Diff:
+
+        assert (original_stream_report.codec_type ==
+                modified_stream_report.codec_type)
+
+        if overrides is None:
+            overrides = {}
+
+        differences = []
+        for attribute in attributes_to_compare:
+            original_value = getattr(original_stream_report, attribute)
+
+            if attribute in overrides:
+                modified_value = overrides[attribute]
+            else:
+                modified_value = getattr(modified_stream_report, attribute)
+
+            if modified_value != original_value:
+                diff_dict = {
+                    'location': original_stream_report.codec_type,
+                    'attribute': attribute,
+                    'original_value': original_value,
+                    'modified_value': modified_value,
+                    'reason': "Different attribute values",
+                }
+                differences.append(diff_dict)
+
+        return differences
+
+    def diff(self,
+             modified_stream_report: 'FfprobeStreamReport',
+             overrides: Optional[StreamOverrides] = None) -> Diff:
+
+        return self._diff_attributes(
+            self.ATTRIBUTES_TO_COMPARE,
+            self,
+            modified_stream_report,
+            overrides,
+        )
+
     def __eq__(self, other):
         return len(self.diff(other, {})) == 0
 
 
 class FfprobeVideoStreamReport(FfprobeStreamReport):
-    ATTRS_TO_CHECK = FfprobeStreamReport.ATTRS_TO_CHECK + [
+    ATTRIBUTES_TO_COMPARE = FfprobeStreamReport.ATTRIBUTES_TO_COMPARE | {
         'start_time',
         'duration',
         'resolution',
-    ]
+    }
 
     def __init__(self, raw_report: dict):
         assert raw_report['codec_type'] == 'video'
@@ -208,28 +397,6 @@ class FfprobeVideoStreamReport(FfprobeStreamReport):
             self._raw_report.get('width', None),
             self._raw_report.get('height', None),
         )
-
-    def diff(self,
-             format_report: dict,
-             overrides: Optional[dict] = None) -> list:
-
-        if overrides is None:
-            overrides = {}
-
-        differences = list()
-        for attr in self.ATTRS_TO_CHECK:
-            original_value = getattr(self, attr)
-            modified_value = getattr(format_report, attr)
-
-            if modified_value != original_value:
-                diff_dict = {
-                    'location': 'video',
-                    'attribute': attr,
-                    'original value': original_value,
-                    'modified value': modified_value,
-                }
-                differences.append(diff_dict)
-        return differences
 
 
 class FfprobeAudioStreamReport(FfprobeStreamReport):
