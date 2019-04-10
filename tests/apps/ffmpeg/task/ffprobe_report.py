@@ -35,11 +35,8 @@ class FfprobeFormatReport:
 
     @property
     def start_time(self):
-        try:
-            return FuzzyDuration(self._raw_report['format']['start_time'], 0)
-        except KeyError:
-            return 'not supported- key does not exists'
-
+        value = self._raw_report.get('format', {}).get('start_time', None)
+        return FuzzyDuration(value, 0)
 
     @property
     def stream_reports(self):
@@ -141,10 +138,7 @@ class FfprobeVideoStreamReport:
 
     @property
     def codec_name(self):
-        try:
-            return self._raw_report['codec_name']
-        except KeyError:
-            return None
+        return self._raw_report.get('codec_name', None)
 
     @property
     def start_time(self):
@@ -152,20 +146,18 @@ class FfprobeVideoStreamReport:
 
     @property
     def duration(self):
-        try:
-            return FuzzyDuration(self._raw_report['duration'], 0)
-        except KeyError:
-            return 'not supported- key does not exists'
+        if 'duration' not in self._raw_report:
+            return None
+
+        return FuzzyDuration(self._raw_report['duration'], 0)
 
     @property
     def resolution(self):
-        try:
-            return self._raw_report['resolution']
-        except KeyError:
-            try:
-                return self._raw_report['width'], self._raw_report['height']
-            except:
-                return 'not supported- key does not exists'
+        return (
+            self._raw_report.get('resolution', None),
+            self._raw_report.get('width', None),
+            self._raw_report.get('height', None),
+        )
 
     def diff(self, format_report: dict, overrides: dict) -> list:
         differences = list()
