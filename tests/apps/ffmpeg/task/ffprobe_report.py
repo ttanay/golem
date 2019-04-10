@@ -19,6 +19,7 @@ class FfprobeFormatReport:
 
     def __init__(self, raw_report: dict):
         self._raw_report = raw_report
+        self._stream_reports = self._create_stream_reports(raw_report)
 
     @classmethod
     def _create_stream_report(cls, raw_stream_report):
@@ -48,7 +49,7 @@ class FfprobeFormatReport:
 
     @property
     def stream_reports(self):
-        return self._create_stream_reports(raw_report)
+        return self._stream_reports
 
     @property
     def stream_types(self):
