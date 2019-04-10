@@ -65,8 +65,8 @@ class FfprobeFormatReport:
                 diff_dict = {
                     'location': 'format',
                     'attribute': attr,
-                    'original value': str(original_value),
-                    'modified value': str(modified_value),
+                    'original value': original_value,
+                    'modified value': modified_value,
                 }
                 differences.append(diff_dict)
         return differences
@@ -177,8 +177,8 @@ class FfprobeVideoStreamReport:
                 diff_dict = {
                     'location': 'video',
                     'attribute': attr,
-                    'original value': str(original_value),
-                    'modified value': str(modified_value),
+                    'original value': original_value,
+                    'modified value': modified_value,
                 }
                 differences.append(diff_dict)
         return differences
