@@ -25,6 +25,9 @@ class FfprobeFormatReport:
     def _create_stream_report(cls, raw_stream_report):
         codec_type_to_report_class = {
             'video':    FfprobeVideoStreamReport,
+            'audio':    FfprobeAudioStreamReport,
+            'subtitle': FfprobeSubtitleStreamReport,
+            'data':     FfprobeDataStreamReport,
         }
 
         codec_type = raw_stream_report['codec_type']
@@ -155,21 +158,37 @@ class FuzzyDuration:
         return f'FuzzyDuration({self._duration}, {self._tolerance})'
 
 
-class FfprobeVideoStreamReport:
-
+class FfprobeStreamReport:
     ATTRS_TO_CHECK = [
+        'codec_type',
         'codec_name',
-        'start_time',
-        'duration',
-        'resolution',
     ]
 
     def __init__(self, raw_report: dict):
         self._raw_report = raw_report
 
     @property
+    def codec_type(self):
+        return self._raw_report.get('codec_type', None)
+
+    @property
     def codec_name(self):
         return self._raw_report.get('codec_name', None)
+
+    def __eq__(self, other):
+        return len(self.diff(other, {})) == 0
+
+
+class FfprobeVideoStreamReport(FfprobeStreamReport):
+    ATTRS_TO_CHECK = FfprobeStreamReport.ATTRS_TO_CHECK + [
+        'start_time',
+        'duration',
+        'resolution',
+    ]
+
+    def __init__(self, raw_report: dict):
+        assert raw_report['codec_type'] == 'video'
+        super().__init__(raw_report)
 
     @property
     def start_time(self):
@@ -212,5 +231,20 @@ class FfprobeVideoStreamReport:
                 differences.append(diff_dict)
         return differences
 
-    def __eq__(self, other):
-        return len(self.diff(other, {})) == 0
+
+class FfprobeAudioStreamReport(FfprobeStreamReport):
+    def __init__(self, raw_report: dict):
+        assert raw_report['codec_type'] == 'audio'
+        super().__init__(raw_report)
+
+
+class FfprobeSubtitleStreamReport(FfprobeStreamReport):
+    def __init__(self, raw_report: dict):
+        assert raw_report['codec_type'] == 'subtitle'
+        super().__init__(raw_report)
+
+
+class FfprobeDataStreamReport(FfprobeStreamReport):
+    def __init__(self, raw_report: dict):
+        assert raw_report['codec_type'] == 'data'
+        super().__init__(raw_report)
