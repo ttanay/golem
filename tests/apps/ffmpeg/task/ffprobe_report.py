@@ -381,14 +381,14 @@ class FfprobeVideoStreamReport(FfprobeStreamReport):
 
     @property
     def start_time(self):
-        return FuzzyDuration(self._raw_report['start_time'], 0)
+        return FuzzyDuration(self._raw_report['start_time'], 0.05)
 
     @property
     def duration(self):
         if 'duration' not in self._raw_report:
             return None
 
-        return FuzzyDuration(self._raw_report['duration'], 0)
+        return FuzzyDuration(self._raw_report['duration'], 0.05)
 
     @property
     def resolution(self):
