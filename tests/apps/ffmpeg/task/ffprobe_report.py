@@ -1,4 +1,3 @@
-import copy
 import json
 import os
 
@@ -71,13 +70,11 @@ class FfprobeFormatReport:
     def build(cls, *video_paths: str) -> list:
         dirs_and_basenames: dict = {}
         for path in video_paths:
-            directory, basename = os.path.split(path)
-            if directory in dirs_and_basenames:
-                value = copy.deepcopy(dirs_and_basenames[directory])
-                value.append(basename)
-                dirs_and_basenames[directory] = value
-            else:
-                dirs_and_basenames.update({directory: [basename]})
+            dirname, basename = os.path.split(path)
+            dirs_and_basenames[dirname] = (
+                dirs_and_basenames.get(dirname, []) +
+                [basename]
+            )
 
         list_of_reports = []
         stream_operator = StreamOperator()
