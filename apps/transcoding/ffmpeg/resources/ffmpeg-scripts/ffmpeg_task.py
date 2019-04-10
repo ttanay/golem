@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 
 # pylint: disable=import-error
 import m3u8
@@ -104,7 +105,7 @@ def run_ffmpeg(params):
         compute_metrics(
             params["metrics_params"])
     else:
-        print("Invalid command.")
+        print("Invalid command.", file=sys.stderr)
 
 
 def run():
