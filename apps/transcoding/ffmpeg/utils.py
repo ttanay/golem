@@ -203,4 +203,10 @@ class StreamOperator:
             logs=work_dir,
             work=work_dir)
 
-        return self._do_job_in_container(dir_mapping, extra_data)
+        logger.info('Obtaining video metadata.')
+        logger.debug('Command params: %s', extra_data)
+
+        job_result = self._do_job_in_container(dir_mapping, extra_data)
+
+        logger.info('Video metadata obtained successfully!')
+        return job_result
