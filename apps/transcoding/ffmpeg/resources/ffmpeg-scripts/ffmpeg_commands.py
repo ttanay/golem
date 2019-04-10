@@ -22,7 +22,6 @@ def exec_cmd(cmd, file=None):
     ret = pc.wait()
     if ret != 0:
         raise SubprocessError(f"Process '{cmd[0]}' failed with status {ret}")
-    return ret
 
 
 def exec_cmd_to_file(cmd, filepath):
