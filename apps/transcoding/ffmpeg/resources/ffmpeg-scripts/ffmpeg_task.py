@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 
 # pylint: disable=import-error
 import m3u8
@@ -11,6 +10,10 @@ from m3u8_utils import create_and_dump_m3u8, join_playlists
 OUTPUT_DIR = "/golem/output"
 RESOURCES_DIR = "/golem/resources"
 PARAMS_FILE = "params.json"
+
+
+class InvalidCommand(Exception):
+    pass
 
 
 def do_split(path_to_stream, parts):
@@ -105,7 +108,7 @@ def run_ffmpeg(params):
         compute_metrics(
             params["metrics_params"])
     else:
-        print("Invalid command.", file=sys.stderr)
+        raise InvalidCommand(f"Invalid command: {params['command']}")
 
 
 def run():
