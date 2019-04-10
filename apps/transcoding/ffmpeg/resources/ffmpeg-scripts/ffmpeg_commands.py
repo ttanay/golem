@@ -2,6 +2,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 
 FFMPEG_COMMAND = "ffmpeg"
 FFPROBE_COMMAND = "ffprobe"
@@ -39,7 +40,15 @@ def exec_cmd_to_string(cmd):
     # Execute command and send results to file.
     tmp_command_result_file = os.path.join(TMP_DIR,
                                            "tmp-command-result.txt")
-    exec_cmd_to_file(cmd, tmp_command_result_file)
+    try:
+        exec_cmd_to_file(cmd, tmp_command_result_file)
+    except:
+        if os.path.exists(tmp_command_result_file):
+            with open(tmp_command_result_file) as result_file:
+                print(result_file.read(), file=sys.stderr)
+        else:
+            print("The command has produced no output", file=sys.stderr)
+        raise
 
     data_string = ""
     with open(tmp_command_result_file, "r") as result_file:
