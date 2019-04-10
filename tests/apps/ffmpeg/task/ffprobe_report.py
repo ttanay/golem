@@ -1,7 +1,6 @@
 import copy
 import json
 import os
-from typing import List
 
 from apps.transcoding.ffmpeg.utils import StreamOperator
 
@@ -69,8 +68,8 @@ class FfprobeFormatReport:
         return len(self.diff(other, {})) == 0
 
     @classmethod
-    def build(cls, *video_paths: List[str]) -> list:
-        dirs_and_basenames = dict()
+    def build(cls, *video_paths: str) -> list:
+        dirs_and_basenames: dict = {}
         for path in video_paths:
             directory, basename = os.path.split(path)
             if directory in dirs_and_basenames:
