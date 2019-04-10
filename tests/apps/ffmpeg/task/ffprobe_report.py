@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Optional
 
 from apps.transcoding.ffmpeg.utils import StreamOperator
 
@@ -46,7 +47,10 @@ class FfprobeFormatReport:
                 list_of_reports.append(FfprobeVideoStreamReport(stream))
         return list_of_reports
 
-    def diff(self, format_report: dict, overrides: dict):
+    def diff(self, format_report: dict, overrides: Optional[dict] = None):
+        if overrides is None:
+            overrides = {}
+
         differences = list()
         for attr in self.ATTRS_TO_CHECK:
             original_value = getattr(self, attr)
@@ -159,7 +163,13 @@ class FfprobeVideoStreamReport:
             self._raw_report.get('height', None),
         )
 
-    def diff(self, format_report: dict, overrides: dict) -> list:
+    def diff(self,
+             format_report: dict,
+             overrides: Optional[dict] = None) -> list:
+
+        if overrides is None:
+            overrides = {}
+
         differences = list()
         for attr in self.ATTRS_TO_CHECK:
             original_value = getattr(self, attr)
