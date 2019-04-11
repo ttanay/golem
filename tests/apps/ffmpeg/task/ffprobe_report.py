@@ -283,19 +283,25 @@ class FuzzyDuration:
 
     @property
     def duration(self):
-        return self._duration
+        try:
+            return float(self._duration)
+        except (TypeError, ValueError):
+            return self._duration
+
+    @property
+    def tolerance(self):
+        return self._tolerance
 
     def __eq__(self, other):
-        try:
-            duration1 = float(self.duration)
-            duration2 = float(other.duration)
-        except ValueError:
+        if isinstance(self.duration, float) and \
+                isinstance(other.duration, float):
+            # We treat both fuzzy values as closed intervals:
+            # [value - tolerance, value + tolerance]
+            # If the intervals overlap at at least one point, we have a match.
+            return abs(self.duration - other.duration) <= \
+                   self.tolerance + other.tolerance
+        else:
             return self.duration == other.duration
-
-        # We treat both fuzzy values as closed intervals:
-        # [value - tolerance, value + tolerance]
-        # If the intervals overlap at at least one point, we have a match.
-        return abs(duration1 - duration2) <= self._tolerance + other._tolerance
 
     def __str__(self):
         if self._tolerance == 0:
@@ -314,22 +320,22 @@ class FuzzyInt:
 
     @property
     def value(self):
-        return self._value
+        try:
+            return int(self._value)
+        except (TypeError, ValueError):
+            return self._value
 
     @property
     def tolerance_percent(self):
         return self._tolerance_percent
 
     def __eq__(self, other):
-        try:
-            duration1 = float(self.value)
-            duration2 = float(other.value)
-        except TypeError:
+        if isinstance(self.value, int) and isinstance(other.value, int):
+            tolerance = (abs(self.tolerance_percent * self.value) +
+                         abs(other.tolerance_percent * other.value)) / 100
+            return abs(self.value - other.value) <= tolerance
+        else:
             return self.value == other.value
-
-        tolerance = (abs(self.tolerance_percent*self.value) +
-                     abs(other.tolerance_percent*other.value)) / 100
-        return abs(duration1 - duration2) <= tolerance
 
     def __str__(self):
         if self.tolerance_percent == 0:
@@ -426,10 +432,7 @@ class FfprobeMediaStreamReport(FfprobeStreamReport):
 
     @property
     def duration(self):
-        if 'duration' not in self._raw_report:
-            return None
-
-        return FuzzyDuration(self._raw_report['duration'], 0.05)
+        return FuzzyDuration(self._raw_report.get('duration'), 0.05)
 
     @property
     def bitrate(self):
