@@ -403,21 +403,12 @@ class FfprobeStreamReport:
         return len(self.diff(other, {})) == 0
 
 
-class FfprobeVideoStreamReport(FfprobeStreamReport):
+class FfprobeMediaStreamReport(FfprobeStreamReport):
     ATTRIBUTES_TO_COMPARE = FfprobeStreamReport.ATTRIBUTES_TO_COMPARE | {
-        'start_time',
         'duration',
-        'resolution',
+        'bitrate',
         'frame_count',
     }
-
-    def __init__(self, raw_report: dict):
-        assert raw_report['codec_type'] == 'video'
-        super().__init__(raw_report)
-
-    @property
-    def start_time(self):
-        return FuzzyDuration(self._raw_report['start_time'], 0.05)
 
     @property
     def duration(self):
@@ -425,6 +416,26 @@ class FfprobeVideoStreamReport(FfprobeStreamReport):
             return None
 
         return FuzzyDuration(self._raw_report['duration'], 0.05)
+
+    @property
+    def bitrate(self):
+        return FuzzyInt(self._raw_report.get('bit_rate'), 5)
+
+    @property
+    def frame_count(self):
+        return self._raw_report.get('nb_frames')
+
+
+class FfprobeVideoStreamReport(FfprobeMediaStreamReport):
+    ATTRIBUTES_TO_COMPARE = FfprobeMediaStreamReport.ATTRIBUTES_TO_COMPARE | {
+        'resolution',
+        'pixel_format',
+        'frame_rate',
+    }
+
+    def __init__(self, raw_report: dict):
+        assert raw_report['codec_type'] == 'video'
+        super().__init__(raw_report)
 
     @property
     def resolution(self):
@@ -441,7 +452,8 @@ class FfprobeVideoStreamReport(FfprobeStreamReport):
         )
 
 
-class FfprobeAudioStreamReport(FfprobeStreamReport):
+
+class FfprobeAudioStreamReport(FfprobeMediaStreamReport):
     def __init__(self, raw_report: dict):
         assert raw_report['codec_type'] == 'audio'
         super().__init__(raw_report)
