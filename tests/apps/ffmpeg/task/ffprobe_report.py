@@ -272,6 +272,9 @@ class FfprobeFormatReport:
                     ))
         return list_of_reports
 
+    def __repr__(self):
+        return f'FfprobeFormatReport({self._raw_report})'
+
 
 class FuzzyDuration:
     def __init__(self, duration, tolerance):
@@ -335,7 +338,7 @@ class FuzzyInt:
         return f'{self._value}+/-{self.tolerance_percent}%'
 
     def __repr__(self):
-        return f'FuzzyDuration({self._value}, {self.tolerance_percent})'
+        return f'FuzzyInt({self._value}, {self.tolerance_percent})'
 
 
 class FfprobeStreamReport:
@@ -410,6 +413,9 @@ class FfprobeStreamReport:
     def __eq__(self, other):
         return len(self.diff(other, {})) == 0
 
+    def __repr__(self):
+        return f'FfprobeStreamReport({self._raw_report})'
+
 
 class FfprobeMediaStreamReport(FfprobeStreamReport):
     ATTRIBUTES_TO_COMPARE = FfprobeStreamReport.ATTRIBUTES_TO_COMPARE | {
@@ -432,6 +438,9 @@ class FfprobeMediaStreamReport(FfprobeStreamReport):
     @property
     def frame_count(self):
         return self._raw_report.get('nb_frames')
+
+    def __repr__(self):
+        return f'FfprobeMediaStreamReport({self._raw_report})'
 
 
 class FfprobeVideoStreamReport(FfprobeMediaStreamReport):
@@ -470,6 +479,9 @@ class FfprobeVideoStreamReport(FfprobeMediaStreamReport):
                 pass
         return self._raw_report.get('r_frame_rate')
 
+    def __repr__(self):
+        return f'FfprobeVideoStreamReport({self._raw_report})'
+
 
 class FfprobeAudioStreamReport(FfprobeMediaStreamReport):
     def __init__(self, raw_report: dict):
@@ -499,12 +511,14 @@ class FfprobeAudioStreamReport(FfprobeMediaStreamReport):
     def channel_layout(self):
         return self._raw_report.get('channel_layout')
 
+    def __repr__(self):
+        return f'FfprobeAudioStreamReport({self._raw_report})'
+
 
 class FfprobeSubtitleStreamReport(FfprobeStreamReport):
     def __init__(self, raw_report: dict):
         assert raw_report['codec_type'] == 'subtitle'
         super().__init__(raw_report)
-        print()
 
     ATTRIBUTES_TO_COMPARE = FfprobeStreamReport.ATTRIBUTES_TO_COMPARE | {
         'language',
@@ -514,8 +528,14 @@ class FfprobeSubtitleStreamReport(FfprobeStreamReport):
     def language(self):
         return self._raw_report.get('tags').get('language')
 
+    def __repr__(self):
+        return f'FfprobeSubtitleStreamReport({self._raw_report})'
+
 
 class FfprobeDataStreamReport(FfprobeStreamReport):
     def __init__(self, raw_report: dict):
         assert raw_report['codec_type'] == 'data'
         super().__init__(raw_report)
+
+    def __repr__(self):
+        return f'FfprobeDataStreamReport({self._raw_report})'
