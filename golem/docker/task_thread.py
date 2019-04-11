@@ -109,6 +109,14 @@ class DockerTaskThread(TaskThread):
     @staticmethod
     def specify_dir_mapping(resources: str, temporary: str, work: str,
                             output: str, logs: str) -> DockerDirMapping:
+        # The problem with this is that it does not fail - if you try to mount
+        # same directory twice, one of your binds is just silently ignored.
+        assert len({
+            os.path.realpath(output),
+            os.path.realpath(work),
+            os.path.realpath(resources),
+        }) == 3, "Docker won't bind same directory to multiple volumes"
+
         return DockerDirMapping(Path(resources), Path(temporary),
                                 Path(work), Path(output), Path(logs))
 
