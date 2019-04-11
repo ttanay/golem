@@ -450,7 +450,7 @@ RAW_REPORT_TRANSCODED = {
                  'ENCODER': 'Lavf58.20.100'}}}
 
 
-raw_report_with_mpeg4 = {
+RAW_REPORT_WITH_MPEG4 = {
     'streams':
         [
             {'index': 0,

@@ -324,8 +324,8 @@ class FuzzyInt:
         except TypeError:
             return self.value == other.value
 
-        tolerance = (self.tolerance_percent*self.value +
-                     other.tolerance_percent*other.value) / 100
+        tolerance = (abs(self.tolerance_percent*self.value) +
+                     abs(other.tolerance_percent*other.value)) / 100
         return abs(duration1 - duration2) <= tolerance
 
     def __str__(self):
@@ -342,6 +342,7 @@ class FfprobeStreamReport:
     ATTRIBUTES_TO_COMPARE = {
         'codec_type',
         'codec_name',
+        'start_time'
     }
 
     def __init__(self, raw_report: dict):
@@ -354,6 +355,10 @@ class FfprobeStreamReport:
     @property
     def codec_name(self):
         return self._raw_report.get('codec_name', None)
+
+    @property
+    def start_time(self):
+        return FuzzyDuration(self._raw_report['start_time'], 0.05)
 
     # pylint: disable=unsubscriptable-object
     # FIXME: pylint bug, see https://github.com/PyCQA/pylint/issues/2377
@@ -449,11 +454,21 @@ class FfprobeVideoStreamReport(FfprobeMediaStreamReport):
         )
 
     @property
-    def frame_count(self):
-        return (
-            self._raw_report.get('nb_frames', None),
-        )
+    def pixel_format(self):
+        return self._raw_report.get('pix_fmt')
 
+    @property
+    def frame_rate(self):
+        frame_rate = self._raw_report.get('r_frame_rate')
+        if isinstance(frame_rate, (int, float)):
+            return frame_rate
+        elif isinstance(frame_rate, str):
+            splited = frame_rate.split('/')
+            try:
+                return float(splited[0])/float(splited[1])
+            except (ValueError, TypeError):
+                pass
+        return self._raw_report.get('r_frame_rate')
 
 
 class FfprobeAudioStreamReport(FfprobeMediaStreamReport):
@@ -461,11 +476,43 @@ class FfprobeAudioStreamReport(FfprobeMediaStreamReport):
         assert raw_report['codec_type'] == 'audio'
         super().__init__(raw_report)
 
+    ATTRIBUTES_TO_COMPARE = FfprobeMediaStreamReport.ATTRIBUTES_TO_COMPARE | {
+        'sample_rate',
+        'sample_format',
+        'channel_count',
+        'channel_layout',
+    }
+
+    @property
+    def sample_rate(self):
+        return int(self._raw_report.get('sample_rate'))
+
+    @property
+    def sample_format(self):
+        return self._raw_report.get('sample_format')
+
+    @property
+    def channel_count(self):
+        return self._raw_report.get('channels')
+
+    @property
+    def channel_layout(self):
+        return self._raw_report.get('channel_layout')
+
 
 class FfprobeSubtitleStreamReport(FfprobeStreamReport):
     def __init__(self, raw_report: dict):
         assert raw_report['codec_type'] == 'subtitle'
         super().__init__(raw_report)
+        print()
+
+    ATTRIBUTES_TO_COMPARE = FfprobeStreamReport.ATTRIBUTES_TO_COMPARE | {
+        'language',
+    }
+
+    @property
+    def language(self):
+        return self._raw_report.get('tags').get('language')
 
 
 class FfprobeDataStreamReport(FfprobeStreamReport):
