@@ -2,6 +2,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 
 FFMPEG_COMMAND = "ffmpeg"
 FFPROBE_COMMAND = "ffprobe"
@@ -9,8 +10,8 @@ FFPROBE_COMMAND = "ffprobe"
 TMP_DIR = "/golem/work/tmp/"
 
 
-class SubprocessError(Exception):
-    pass
+def flatten_list(list_of_lists):
+    return [item for sublist in list_of_lists for item in sublist]
 
 
 def exec_cmd(cmd, file=None):
@@ -21,7 +22,8 @@ def exec_cmd(cmd, file=None):
 
     ret = pc.wait()
     if ret != 0:
-        raise SubprocessError(f"Process '{cmd[0]}' failed with status {ret}")
+        print(f"Process '{cmd[0]}' failed with status {ret}", file=sys.stderr)
+        exit(ret)
 
 
 def exec_cmd_to_file(cmd, filepath):
