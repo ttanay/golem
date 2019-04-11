@@ -301,6 +301,40 @@ class FuzzyDuration:
         return f'FuzzyDuration({self._duration}, {self._tolerance})'
 
 
+class FuzzyInt:
+    def __init__(self, value, tolerance_percent):
+        self._value = value
+        self._tolerance_percent = tolerance_percent
+
+    @property
+    def value(self):
+        return self._value
+
+    @property
+    def tolerance_percent(self):
+        return self._tolerance_percent
+
+    def __eq__(self, other):
+        try:
+            duration1 = float(self.value)
+            duration2 = float(other.value)
+        except TypeError:
+            return self.value == other.value
+
+        tolerance = (self.tolerance_percent*self.value +
+                     other.tolerance_percent*other.value) / 100
+        return abs(duration1 - duration2) <= tolerance
+
+    def __str__(self):
+        if self.tolerance_percent == 0:
+            return f'{self._value}'
+
+        return f'{self._value}+/-{self.tolerance_percent}%'
+
+    def __repr__(self):
+        return f'FuzzyDuration({self._value}, {self.tolerance_percent})'
+
+
 class FfprobeStreamReport:
     ATTRIBUTES_TO_COMPARE = {
         'codec_type',
