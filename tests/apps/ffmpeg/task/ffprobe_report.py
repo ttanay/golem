@@ -283,8 +283,11 @@ class FuzzyDuration:
         return self._duration
 
     def __eq__(self, other):
-        duration1 = float(self.duration)
-        duration2 = float(other.duration)
+        try:
+            duration1 = float(self.duration)
+            duration2 = float(other.duration)
+        except ValueError:
+            return self.duration == other.duration
 
         # We treat both fuzzy values as closed intervals:
         # [value - tolerance, value + tolerance]
