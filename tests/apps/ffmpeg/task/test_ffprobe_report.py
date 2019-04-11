@@ -3,7 +3,7 @@ from unittest import TestCase
 from tests.apps.ffmpeg.task.ffprobe_report import FfprobeFormatReport
 from tests.apps.ffmpeg.task.ffprobe_report_sample_reports import \
     RAW_REPORT_ORIGINAL, RAW_REPORT_TRANSCODED, \
-    RAW_REPORT_ORIGINAL_WITH_REMOVED_SUBTITLES
+    RAW_REPORT_ORIGINAL_WITH_REMOVED_SUBTITLES, RAW_REPORT_WITH_MPEG4
 
 
 class TestFfprobeFormatReport(TestCase):
@@ -84,3 +84,10 @@ class TestFfprobeFormatReport(TestCase):
             }
         ]
         self.assertCountEqual(diff, expected_diff)
+
+    def test_frame_count_property_is_present_in_report(self):
+        report = FfprobeFormatReport(RAW_REPORT_WITH_MPEG4)
+        for stream_report in report.stream_reports:
+            if getattr(stream_report, 'codec_type') == 'video':
+                self.assertTrue(hasattr(stream_report, 'frame_count'))
+                self.assertIsNotNone(getattr(stream_report, 'frame_count'))

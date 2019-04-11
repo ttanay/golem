@@ -272,6 +272,7 @@ class FfprobeFormatReport:
                     ))
         return list_of_reports
 
+
 class FuzzyDuration:
     def __init__(self, duration, tolerance):
         self._duration = duration
@@ -373,6 +374,7 @@ class FfprobeVideoStreamReport(FfprobeStreamReport):
         'start_time',
         'duration',
         'resolution',
+        'frame_count',
     }
 
     def __init__(self, raw_report: dict):
@@ -396,6 +398,12 @@ class FfprobeVideoStreamReport(FfprobeStreamReport):
             self._raw_report.get('resolution', None),
             self._raw_report.get('width', None),
             self._raw_report.get('height', None),
+        )
+
+    @property
+    def frame_count(self):
+        return (
+            self._raw_report.get('nb_frames', None),
         )
 
 
