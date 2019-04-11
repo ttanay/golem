@@ -20,6 +20,7 @@ class FfprobeFormatReport:
         'stream_types',
         'duration',
         'start_time',
+        'program_count'
     }
 
     def __init__(self, raw_report: dict):
@@ -81,6 +82,10 @@ class FfprobeFormatReport:
     def start_time(self):
         value = self._raw_report.get('format', {}).get('start_time', None)
         return FuzzyDuration(value, 0)
+
+    @property
+    def program_count(self):
+        return self._raw_report.get('nb_programs')
 
     @classmethod
     def _classify_streams(cls,
