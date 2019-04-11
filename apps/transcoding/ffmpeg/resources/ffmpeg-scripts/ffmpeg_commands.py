@@ -31,16 +31,8 @@ def exec_cmd_to_file(cmd, filepath):
         os.makedirs(filedir)
 
     # Execute command and send results to file.
-    try:
-        with open(filepath, "w") as result_file:
-            exec_cmd(cmd, result_file)
-    except:
-        if os.path.exists(filepath):
-            with open(filepath) as result_file:
-                print(result_file.read(), file=sys.stderr)
-        else:
-            print("The command has produced no output", file=sys.stderr)
-        raise
+    with open(filepath, "w") as result_file:
+        exec_cmd(cmd, result_file)
 
 
 def exec_cmd_to_string(cmd):
