@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any, Collection, Dict, List, Optional
+from typing import Any, Collection, Dict, List, Optional, Union, Tuple
 
 from apps.transcoding.ffmpeg.utils import StreamOperator
 
@@ -28,7 +28,8 @@ class FfprobeFormatReport:
         self._stream_reports = self._create_stream_reports(raw_report)
 
     @classmethod
-    def _create_stream_report(cls, raw_stream_report):
+    def _create_stream_report(cls, raw_stream_report: dict) -> \
+            'FfprobeStreamReport':
         codec_type_to_report_class = {
             'video':    FfprobeVideoStreamReport,
             'audio':    FfprobeAudioStreamReport,
@@ -47,7 +48,8 @@ class FfprobeFormatReport:
         return report_class(raw_stream_report)
 
     @classmethod
-    def _create_stream_reports(cls, raw_report):
+    def _create_stream_reports(cls, raw_report: dict) -> \
+            List['FfprobeStreamReport']:
         if 'streams' not in raw_report:
             return []
 
@@ -57,11 +59,11 @@ class FfprobeFormatReport:
         ]
 
     @property
-    def stream_reports(self):
+    def stream_reports(self) -> List['FfprobeStreamReport']:
         return self._stream_reports
 
     @property
-    def stream_types(self):
+    def stream_types(self) -> Dict[str, int]:
         streams = self._raw_report['streams']
         streams_dict: Dict[str, int] = {}
 
@@ -74,17 +76,17 @@ class FfprobeFormatReport:
         return streams_dict
 
     @property
-    def duration(self):
+    def duration(self) -> 'FuzzyDuration':
         value = self._raw_report.get('format', {}).get('duration', None)
         return FuzzyDuration(value, 10)
 
     @property
-    def start_time(self):
+    def start_time(self) -> Optional['FuzzyDuration']:
         value = self._raw_report.get('format', {}).get('start_time', None)
         return FuzzyDuration(value, 0)
 
     @property
-    def program_count(self):
+    def program_count(self) -> Optional[str]:
         return self._raw_report.get('nb_programs')
 
     @classmethod
@@ -253,7 +255,7 @@ class FfprobeFormatReport:
         return len(self.diff(other, {})) == 0
 
     @classmethod
-    def build(cls, *video_paths: str) -> list:
+    def build(cls, *video_paths: str) -> List['FfprobeFormatReport']:
         dirs_and_basenames: dict = {}
         for path in video_paths:
             dirname, basename = os.path.split(path)
@@ -282,19 +284,19 @@ class FfprobeFormatReport:
 
 
 class FuzzyDuration:
-    def __init__(self, duration, tolerance):
+    def __init__(self, duration: Union[float, int, str], tolerance: float):
         self._duration = duration
         self._tolerance = tolerance
 
     @property
-    def duration(self):
+    def duration(self) -> Any:
         try:
             return float(self._duration)
         except (TypeError, ValueError):
             return self._duration
 
     @property
-    def tolerance(self):
+    def tolerance(self) -> float:
         return self._tolerance
 
     def __eq__(self, other):
@@ -319,19 +321,19 @@ class FuzzyDuration:
 
 
 class FuzzyInt:
-    def __init__(self, value, tolerance_percent):
+    def __init__(self, value: Union[float, int, str], tolerance_percent: int):
         self._value = value
         self._tolerance_percent = tolerance_percent
 
     @property
-    def value(self):
+    def value(self) -> Union[int, str]:
         try:
             return int(self._value)
         except (TypeError, ValueError):
             return self._value
 
     @property
-    def tolerance_percent(self):
+    def tolerance_percent(self) -> int:
         return self._tolerance_percent
 
     def __eq__(self, other):
@@ -363,15 +365,15 @@ class FfprobeStreamReport:
         self._raw_report = raw_report
 
     @property
-    def codec_type(self):
+    def codec_type(self) -> Optional[str]:
         return self._raw_report.get('codec_type', None)
 
     @property
-    def codec_name(self):
+    def codec_name(self)-> Optional[str]:
         return self._raw_report.get('codec_name', None)
 
     @property
-    def start_time(self):
+    def start_time(self) -> FuzzyDuration:
         return FuzzyDuration(self._raw_report['start_time'], 0.05)
 
     # pylint: disable=unsubscriptable-object
@@ -436,15 +438,15 @@ class FfprobeMediaStreamReport(FfprobeStreamReport):
     }
 
     @property
-    def duration(self):
+    def duration(self) -> FuzzyDuration:
         return FuzzyDuration(self._raw_report.get('duration'), 0.05)
 
     @property
-    def bitrate(self):
+    def bitrate(self) -> FuzzyInt:
         return FuzzyInt(self._raw_report.get('bit_rate'), 5)
 
     @property
-    def frame_count(self):
+    def frame_count(self) -> Union[str, Any]:
         return self._raw_report.get('nb_frames')
 
     def __repr__(self):
@@ -463,7 +465,8 @@ class FfprobeVideoStreamReport(FfprobeMediaStreamReport):
         super().__init__(raw_report)
 
     @property
-    def resolution(self):
+    def resolution(self
+                  ) -> Union[Collection, Tuple[Collection, Any, Any]]:
         resolution = self._raw_report.get('resolution', None)
         width = self._raw_report.get('width', None)
         height = self._raw_report.get('height', None)
@@ -478,11 +481,11 @@ class FfprobeVideoStreamReport(FfprobeMediaStreamReport):
         return (resolution, width, height)
 
     @property
-    def pixel_format(self):
+    def pixel_format(self) -> Optional[str]:
         return self._raw_report.get('pix_fmt')
 
     @property
-    def frame_rate(self):
+    def frame_rate(self)-> Union[float, str, None]:
         frame_rate = self._raw_report.get('r_frame_rate')
         if isinstance(frame_rate, (int, float)):
             return frame_rate
@@ -511,19 +514,22 @@ class FfprobeAudioStreamReport(FfprobeMediaStreamReport):
     }
 
     @property
-    def sample_rate(self):
-        return int(self._raw_report.get('sample_rate'))
+    def sample_rate(self)-> Union[int, Any]:
+        try:
+            return int(self._raw_report.get('sample_rate'))
+        except (TypeError,ValueError):
+            return self._raw_report.get('sample_rate')
 
     @property
-    def sample_format(self):
+    def sample_format(self) -> Optional[str]:
         return self._raw_report.get('sample_format')
 
     @property
-    def channel_count(self):
+    def channel_count(self)-> Optional[int]:
         return self._raw_report.get('channels')
 
     @property
-    def channel_layout(self):
+    def channel_layout(self)-> Optional[str]:
         return self._raw_report.get('channel_layout')
 
     def __repr__(self):
