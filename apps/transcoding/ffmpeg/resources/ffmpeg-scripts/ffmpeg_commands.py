@@ -148,7 +148,7 @@ def get_video_encoder(target_codec):
     encoders = {
         "h264": "libx264",
         "h265": "libx265",
-        "HEVC": "libx265",
+        "hevc": "libx265",
         "mpeg1video": "mpeg1video",
         "mpeg2video": "mpeg2video",
         "mpeg4": "libxvid"

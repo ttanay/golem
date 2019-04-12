@@ -31,7 +31,7 @@ class VideoCodec(Enum):
                           # H.263+ / H.263-1998 / H.263 version 2
     H_264 = 'h264'        # H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10
     H_265 = 'h265'
-    HEVC = 'HEVC'         # H.265 / HEVC (High Efficiency Video Coding)
+    HEVC = 'hevc'         # H.265 / HEVC (High Efficiency Video Coding)
     MJPEG = 'mjpeg'       # Motion JPEG
     MPEG_1 = 'mpeg1video' # MPEG-1 video
     MPEG_2 = 'mpeg2video' # MPEG-2 video
