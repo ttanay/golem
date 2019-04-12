@@ -401,12 +401,12 @@ class FfprobeStreamReport:
         self._raw_report = raw_report
 
     @property
-    def codec_type(self) -> Optional[str]:
-        return self._raw_report.get('codec_type', None)
+    def codec_type(self) -> str:
+        return self._raw_report['codec_type']
 
     @property
-    def codec_name(self)-> Optional[str]:
-        return self._raw_report.get('codec_name', None)
+    def codec_name(self)-> str:
+        return self._raw_report['codec_name']
 
     @property
     def start_time(self) -> FuzzyDuration:
