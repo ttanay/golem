@@ -126,7 +126,7 @@ class FfprobeFormatReport:
 
     @property
     def program_count(self) -> Optional[str]:
-        return self._raw_report.get('nb_programs')
+        return number_if_possible(self._raw_report.get('nb_programs'))
 
     @classmethod
     def _classify_streams(cls,
@@ -479,7 +479,7 @@ class FfprobeMediaStreamReport(FfprobeStreamReport):
 
     @property
     def frame_count(self) -> Union[str, Any]:
-        return self._raw_report.get('nb_frames')
+        return number_if_possible(self._raw_report.get('nb_frames'))
 
     def __repr__(self):
         return f'FfprobeMediaStreamReport({self._raw_report})'
@@ -518,16 +518,15 @@ class FfprobeVideoStreamReport(FfprobeMediaStreamReport):
 
     @property
     def frame_rate(self)-> Union[float, str, None]:
-        frame_rate = self._raw_report.get('r_frame_rate')
-        if isinstance(frame_rate, (int, float)):
-            return frame_rate
-        elif isinstance(frame_rate, str):
-            splited = frame_rate.split('/')
-            try:
-                return float(splited[0])/float(splited[1])
-            except (ValueError, TypeError):
-                pass
-        return self._raw_report.get('r_frame_rate')
+        value = number_if_possible(self._raw_report.get('r_frame_rate'))
+        if not isinstance(value, str):
+            return value
+
+        splited = value.split('/')
+        try:
+            return float(splited[0])/float(splited[1])
+        except (ValueError, TypeError):
+            return value
 
     def __repr__(self):
         return f'FfprobeVideoStreamReport({self._raw_report})'
@@ -547,10 +546,7 @@ class FfprobeAudioStreamReport(FfprobeMediaStreamReport):
 
     @property
     def sample_rate(self)-> Union[int, Any]:
-        try:
-            return int(self._raw_report.get('sample_rate'))
-        except (TypeError,ValueError):
-            return self._raw_report.get('sample_rate')
+        return number_if_possible(self._raw_report.get('sample_rate'))
 
     @property
     def sample_format(self) -> Optional[str]:
@@ -558,7 +554,7 @@ class FfprobeAudioStreamReport(FfprobeMediaStreamReport):
 
     @property
     def channel_count(self)-> Optional[int]:
-        return self._raw_report.get('channels')
+        return number_if_possible(self._raw_report.get('channels'))
 
     @property
     def channel_layout(self)-> Optional[str]:
