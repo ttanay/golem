@@ -112,13 +112,17 @@ class FfprobeFormatReport:
 
     @property
     def duration(self) -> 'FuzzyDuration':
-        value = self._raw_report.get('format', {}).get('duration', None)
-        return FuzzyDuration(value, 10)
+        return fuzzy_duration_if_possible(
+            self._raw_report.get('format', {}).get('duration', None),
+            10,
+        )
 
     @property
     def start_time(self) -> Optional['FuzzyDuration']:
-        value = self._raw_report.get('format', {}).get('start_time', None)
-        return FuzzyDuration(value, 0)
+        return fuzzy_duration_if_possible(
+            self._raw_report.get('format', {}).get('start_time', None),
+            0,
+        )
 
     @property
     def program_count(self) -> Optional[str]:
@@ -402,7 +406,7 @@ class FfprobeStreamReport:
 
     @property
     def start_time(self) -> FuzzyDuration:
-        return FuzzyDuration(self._raw_report['start_time'], 0.05)
+        return fuzzy_duration_if_possible(self._raw_report['start_time'], 0.05)
 
     # pylint: disable=unsubscriptable-object
     # FIXME: pylint bug, see https://github.com/PyCQA/pylint/issues/2377
@@ -467,11 +471,11 @@ class FfprobeMediaStreamReport(FfprobeStreamReport):
 
     @property
     def duration(self) -> FuzzyDuration:
-        return FuzzyDuration(self._raw_report.get('duration'), 0.05)
+        return fuzzy_duration_if_possible(self._raw_report['start_time'], 0.05)
 
     @property
     def bitrate(self) -> FuzzyInt:
-        return FuzzyInt(self._raw_report.get('bit_rate'), 5)
+        return fuzzy_int_if_possible(self._raw_report.get('bit_rate'), 5)
 
     @property
     def frame_count(self) -> Union[str, Any]:
