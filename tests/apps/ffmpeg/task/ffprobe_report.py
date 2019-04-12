@@ -323,31 +323,24 @@ class FfprobeFormatReport:
 
 
 class FuzzyDuration:
-    def __init__(self, duration: Union[float, int, str], tolerance: float):
+    def __init__(self, duration: Union[float, int], tolerance: float):
         self._duration = duration
         self._tolerance = tolerance
 
     @property
     def duration(self) -> Any:
-        try:
-            return float(self._duration)
-        except (TypeError, ValueError):
-            return self._duration
+        return self._duration
 
     @property
     def tolerance(self) -> float:
         return self._tolerance
 
     def __eq__(self, other):
-        if isinstance(self.duration, float) and \
-                isinstance(other.duration, float):
-            # We treat both fuzzy values as closed intervals:
-            # [value - tolerance, value + tolerance]
-            # If the intervals overlap at at least one point, we have a match.
-            return abs(self.duration - other.duration) <= \
-                   self.tolerance + other.tolerance
-        else:
-            return self.duration == other.duration
+        # We treat both fuzzy values as closed intervals:
+        # [value - tolerance, value + tolerance]
+        # If the intervals overlap at at least one point, we have a match.
+        return abs(self.duration - other.duration) <= \
+               self.tolerance + other.tolerance
 
     def __str__(self):
         if self._tolerance == 0:
@@ -360,28 +353,24 @@ class FuzzyDuration:
 
 
 class FuzzyInt:
-    def __init__(self, value: Union[float, int, str], tolerance_percent: int):
+    def __init__(self, value: int, tolerance_percent: int):
         self._value = value
         self._tolerance_percent = tolerance_percent
 
     @property
-    def value(self) -> Union[int, str]:
-        try:
-            return int(self._value)
-        except (TypeError, ValueError):
-            return self._value
+    def value(self) -> int:
+        return self._value
 
     @property
     def tolerance_percent(self) -> int:
         return self._tolerance_percent
 
     def __eq__(self, other):
-        if isinstance(self.value, int) and isinstance(other.value, int):
-            tolerance = (abs(self.tolerance_percent * self.value) +
-                         abs(other.tolerance_percent * other.value)) / 100
-            return abs(self.value - other.value) <= tolerance
-        else:
-            return self.value == other.value
+        tolerance = (
+            abs(self.tolerance_percent * self.value) +
+            abs(other.tolerance_percent * other.value)
+        ) / 100
+        return abs(self.value - other.value) <= tolerance
 
     def __str__(self):
         if self.tolerance_percent == 0:
