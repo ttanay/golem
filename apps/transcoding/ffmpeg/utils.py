@@ -172,7 +172,7 @@ class StreamOperator:
                                                     resources=resources,
                                                     logs=logs, work=work)
 
-    def get_metadata(self, input_files: List[str], task_dir):
+    def get_metadata(self, input_files: List[str], task_dir: str) -> dict:
         try:
             resources_dir = task_dir
             output_dir = os.path.join(task_dir, 'metadata_output')
