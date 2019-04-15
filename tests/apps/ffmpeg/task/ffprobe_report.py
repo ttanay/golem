@@ -323,7 +323,11 @@ class FfprobeFormatReport:
         return list_of_reports
 
     def __repr__(self):
-        return f'FfprobeFormatReport({self._raw_report})'
+        messages = []
+        for attr in self.ATTRIBUTES_TO_COMPARE:
+            messages.append(f'{attr}: {str(getattr(self, attr))}')
+        return f'FfprobeFormatReport({", ".join(messages)}. ' \
+            f'Streams: {self.stream_reports.__repr__()})'
 
 
 class FuzzyDuration:
@@ -463,7 +467,10 @@ class FfprobeStreamReport:
         return len(self.diff(other, {})) == 0
 
     def __repr__(self):
-        return f'FfprobeStreamReport({self._raw_report})'
+        messages = []
+        for attr in self.ATTRIBUTES_TO_COMPARE:
+            messages.append(f'{attr}: {str(getattr(self, attr))}')
+        return f'{type(self).__name__}({", ".join(messages)} )'
 
 
 class FfprobeMediaStreamReport(FfprobeStreamReport):
@@ -486,7 +493,7 @@ class FfprobeMediaStreamReport(FfprobeStreamReport):
         return number_if_possible(self._raw_report.get('nb_frames'))
 
     def __repr__(self):
-        return f'FfprobeMediaStreamReport({self._raw_report})'
+        return super().__repr__()
 
 
 class FfprobeVideoStreamReport(FfprobeMediaStreamReport):
@@ -533,7 +540,7 @@ class FfprobeVideoStreamReport(FfprobeMediaStreamReport):
             return value
 
     def __repr__(self):
-        return f'FfprobeVideoStreamReport({self._raw_report})'
+        return super().__repr__()
 
 
 class FfprobeAudioStreamReport(FfprobeMediaStreamReport):
@@ -565,7 +572,7 @@ class FfprobeAudioStreamReport(FfprobeMediaStreamReport):
         return self._raw_report.get('channel_layout')
 
     def __repr__(self):
-        return f'FfprobeAudioStreamReport({self._raw_report})'
+        return super().__repr__()
 
 
 class FfprobeSubtitleStreamReport(FfprobeStreamReport):
@@ -582,7 +589,7 @@ class FfprobeSubtitleStreamReport(FfprobeStreamReport):
         return self._raw_report.get('tags').get('language')
 
     def __repr__(self):
-        return f'FfprobeSubtitleStreamReport({self._raw_report})'
+        return super().__repr__()
 
 
 class FfprobeDataStreamReport(FfprobeStreamReport):
@@ -591,4 +598,4 @@ class FfprobeDataStreamReport(FfprobeStreamReport):
         super().__init__(raw_report)
 
     def __repr__(self):
-        return f'FfprobeDataStreamReport({self._raw_report})'
+        return super().__repr__()
