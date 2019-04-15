@@ -85,9 +85,45 @@ class TestFfprobeFormatReport(TestCase):
         ]
         self.assertCountEqual(diff, expected_diff)
 
-    def test_frame_count_property_is_present_in_report(self):
-        report = FfprobeFormatReport(RAW_REPORT_WITH_MPEG4)
-        for stream_report in report.stream_reports:
-            if getattr(stream_report, 'codec_type') == 'video':
-                self.assertTrue(hasattr(stream_report, 'frame_count'))
-                self.assertIsNotNone(getattr(stream_report, 'frame_count'))
+    def test_required_video_attributes_are_present_in_report(self):
+        attributes = [
+            'frame_count',
+            'duration',
+            'bitrate',
+            'resolution',
+            'pixel_format',
+            'frame_rate',
+        ]
+        for attr in attributes:
+            report1 = FfprobeFormatReport(RAW_REPORT_WITH_MPEG4)
+            report2 = FfprobeFormatReport(RAW_REPORT_ORIGINAL)
+
+            for stream_report in report1.stream_reports:
+                if getattr(stream_report, 'codec_type') == 'video':
+                    assert hasattr(stream_report, attr)
+
+            for stream_report in report2.stream_reports:
+                if getattr(stream_report, 'codec_type') == 'video':
+                    assert hasattr(stream_report, attr)
+
+    def test_required_audio_attributes_are_present_in_report(self):
+        attributes = [
+            'frame_count',
+            'duration',
+            'bitrate',
+            'sample_rate',
+            'sample_format',
+            'channel_count',
+            'channel_layout',
+        ]
+        for attr in attributes:
+            report1 = FfprobeFormatReport(RAW_REPORT_WITH_MPEG4)
+            report2 = FfprobeFormatReport(RAW_REPORT_ORIGINAL)
+
+            for stream_report in report1.stream_reports:
+                if getattr(stream_report, 'codec_type') == 'audio':
+                    assert hasattr(stream_report, attr)
+
+            for stream_report in report2.stream_reports:
+                if getattr(stream_report, 'codec_type') == 'audio':
+                    assert hasattr(stream_report, attr)
