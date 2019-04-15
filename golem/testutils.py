@@ -37,6 +37,10 @@ from golem.task.taskstate import TaskState, TaskStatus
 logger = logging.getLogger(__name__)
 
 
+class DockerTestJobFailure(Exception):
+    pass
+
+
 class TestTaskManager(TaskManager):
     def __init__(
             self, node, keys_auth, root_path,
@@ -382,7 +386,7 @@ class TestTaskIntegration(TempDirFixture):
 
         dtt.run()
         if dtt.error:
-            raise Exception(dtt.error_msg)
+            raise DockerTestJobFailure(dtt.error_msg)
         return dtt.result.get('data')
 
     @classmethod
