@@ -17,7 +17,8 @@ from golem.resource.dirmanager import DirManager
 from golem.task.taskbase import Task
 from golem.task.taskstate import SubtaskStatus
 from .common import AudioCodec, VideoCodec, Container, is_type_of, \
-    TranscodingTaskBuilderException
+    TranscodingTaskBuilderException, AudioCodecNotSupportedByContainer, \
+    VideoCodecNotSupportedByContainer
 
 logger = logging.getLogger(__name__)
 
@@ -245,13 +246,13 @@ class TranscodingTaskBuilder(CoreTaskBuilder):
                                         output_container):
         if audio_codec and audio_codec \
                 not in output_container.get_supported_audio_codecs():
-            raise TranscodingTaskBuilderException(
+            raise AudioCodecNotSupportedByContainer(
                 'Container {} does not support {}'.format(
                     output_container.value, audio_codec.value))
 
         if video_codec and video_codec \
                 not in output_container.get_supported_video_codecs():
-            raise TranscodingTaskBuilderException(
+            raise VideoCodecNotSupportedByContainer(
                 'Container {} does not support {}'.format(
                     output_container.value, video_codec.value))
 
