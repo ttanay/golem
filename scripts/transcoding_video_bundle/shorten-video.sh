@@ -71,10 +71,10 @@ function split_video() {
 
    if [[ "$num_segments" == 1 ]]; then
        chosen_segment="$input_file"
-       output_file="$output_dir/$(basename "$input_file")"
+       output_file="$output_dir/$(basename "$output_dir")"
    else
        chosen_segment="$(printf "$segment_name_pattern" 1)"
-       output_file="$output_dir/$(strip_extension "$(basename "$input_file")")[segment1of$num_segments].$(get_extension "$input_file")"
+       output_file="$output_dir/$(strip_extension "$(basename "$output_dir")")[segment1of$num_segments].$(get_extension "$input_file")"
    fi
 
    echo "Copying or linking $chosen_segment -> $output_file"
