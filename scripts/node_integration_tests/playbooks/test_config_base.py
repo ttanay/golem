@@ -1,3 +1,4 @@
+import enum
 import os
 from typing import (
     Any,
@@ -42,6 +43,18 @@ class NodeConfig:
         return f"<{self.__class__.__name__}: {self.__dict__}"
 
 
+class NodeId(enum.Enum):
+    """
+    This enum holds commonly used nodes names.
+    Feel free to extend this enum in your tests that require more nodes.
+    """
+    def _generate_next_value_(name, start, count, last_values):
+        return name
+
+    requestor = enum.auto()
+    provider = enum.auto()
+
+
 def make_node_config_from_env(role: str, counter: int) -> NodeConfig:
     node_config = NodeConfig()
     node_config.concent = os.environ.get('GOLEM_CONCENT_VARIANT',
@@ -59,10 +72,10 @@ class TestConfigBase:
         self.dump_output_on_crash = False
         self.dump_output_on_fail = False
 
-        self.requestor: Union[None, NodeConfig, List[NodeConfig]] = \
-            make_node_config_from_env('REQUESTOR', 0)
-        self.provider: Union[None, NodeConfig, List[NodeConfig]] = \
-            make_node_config_from_env('PROVIDER', 1)
+        self.nodes: Dict[NodeId, Union[NodeConfig, List[NodeConfig]]] = {}
+        for i, node_id in enumerate(NodeId):
+            self.nodes[node_id] = make_node_config_from_env(
+                node_id.value.upper(), i)
         self._nodes_index = 0
         self.task_package = 'test_task_1'
         self.task_settings = 'default'
@@ -72,16 +85,14 @@ class TestConfigBase:
         )
 
     @property
-    def current_requestor(self) -> Optional[NodeConfig]:
-        if isinstance(self.requestor, list):
-            return self.requestor[min(self._nodes_index, len(self.requestor)-1)]
-        return self.requestor
-
-    @property
-    def current_provider(self) -> Optional[NodeConfig]:
-        if isinstance(self.provider, list):
-            return self.provider[min(self._nodes_index, len(self.provider)-1)]
-        return self.provider
+    def current_nodes(self) -> Dict[NodeId, NodeConfig]:
+        return {
+            node_id: (
+                node_config if isinstance(node_config, NodeConfig)
+                else node_config[min(self._nodes_index, len(node_config)-1)]
+            )
+            for node_id, node_config in self.nodes.items()
+        }
 
     def use_next_nodes(self) -> None:
         self._nodes_index += 1

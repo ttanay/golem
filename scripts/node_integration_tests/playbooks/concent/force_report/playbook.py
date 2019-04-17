@@ -1,4 +1,5 @@
 import datetime
+from functools import partial
 import re
 import time
 
@@ -9,6 +10,7 @@ from scripts.node_integration_tests import helpers
 
 
 from ..concent_base import ConcentTestPlaybook
+from ...test_config_base import NodeId
 
 
 class Playbook(ConcentTestPlaybook):
@@ -46,7 +48,7 @@ class Playbook(ConcentTestPlaybook):
             (concent_fail_triggers + ack_rct_trigger)
         ]) + '.*'
         log_match = helpers.search_output(
-            self.provider_output_queue,
+            self.output_queues[NodeId.provider],
             log_match_pattern,
         )
 
@@ -72,18 +74,21 @@ class Playbook(ConcentTestPlaybook):
             return
 
         if not self.task_finished:
-            return self.call_requestor(
+            return self.call(
+                NodeId.requestor,
                 'comp.task', self.task_id,
                 on_success=on_success,
-                on_error=self.print_error
             )
 
     steps = ConcentTestPlaybook.initial_steps + (
-        ConcentTestPlaybook.step_create_task,
-        ConcentTestPlaybook.step_get_task_id,
-        ConcentTestPlaybook.step_get_task_status,
+        partial(ConcentTestPlaybook.step_create_task, node_id=NodeId.requestor),
+        partial(ConcentTestPlaybook.step_get_task_id, node_id=NodeId.requestor),
+        partial(ConcentTestPlaybook.step_get_task_status,
+                node_id=NodeId.requestor),
         step_wait_task_finished_and_arct_received,
         ConcentTestPlaybook.step_verify_output,
-        ConcentTestPlaybook.step_get_subtasks,
-        ConcentTestPlaybook.step_verify_provider_income,
+        partial(ConcentTestPlaybook.step_get_subtasks,
+                node_id=NodeId.requestor),
+        partial(ConcentTestPlaybook.step_verify_node_income,
+                node_id=NodeId.provider, from_node=NodeId.requestor),
     )

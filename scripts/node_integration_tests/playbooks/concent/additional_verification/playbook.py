@@ -1,9 +1,11 @@
 import datetime
+from functools import partial
 import time
 
 from scripts.node_integration_tests import helpers
 
 from ..concent_base import ConcentTestPlaybook
+from ...test_config_base import NodeId
 
 
 class Playbook(ConcentTestPlaybook):
@@ -20,14 +22,14 @@ class Playbook(ConcentTestPlaybook):
                 print("{} ... ".format(result['status']))
                 time.sleep(10)
 
-        return self.call_requestor('comp.task', self.task_id,
-                       on_success=on_success, on_error=self.print_error)
+        return self.call(NodeId.requestor, 'comp.task', self.task_id,
+                         on_success=on_success)
 
     def step_wait_task_rejected(self):
         sra = "SubtaskResultsAccepted"
         srr = "SubtaskResultsRejected"
         verification_received = helpers.search_output(
-            self.provider_output_queue,
+            self.output_queues[NodeId.provider],
             '.*' + sra + '.*|.*' + srr + '.*',
         )
 
@@ -60,8 +62,8 @@ class Playbook(ConcentTestPlaybook):
                     print("{} ... ".format(result['status']))
                     time.sleep(10)
 
-            return self.call_requestor('comp.task', self.task_id,
-                           on_success=on_success, on_error=self.print_error)
+            return self.call(NodeId.requestor, 'comp.task', self.task_id,
+                             on_success=on_success)
 
     def step_wait_settled(self):
         if not self.concent_verification_timeout:
@@ -85,7 +87,7 @@ class Playbook(ConcentTestPlaybook):
             '.*' + '.*|.*'.join(fail_triggers + settled_trigger) + '.*'
 
         log_match = helpers.search_output(
-            self.provider_output_queue,
+            self.output_queues[NodeId.provider],
             log_match_pattern,
         )
 
@@ -105,9 +107,10 @@ class Playbook(ConcentTestPlaybook):
             self.fail("Concent verification timed out... ")
 
     steps = ConcentTestPlaybook.initial_steps + (
-        ConcentTestPlaybook.step_create_task,
-        ConcentTestPlaybook.step_get_task_id,
-        ConcentTestPlaybook.step_get_task_status,
+        partial(ConcentTestPlaybook.step_create_task, node_id=NodeId.requestor),
+        partial(ConcentTestPlaybook.step_get_task_id, node_id=NodeId.requestor),
+        partial(ConcentTestPlaybook.step_get_task_status,
+                node_id=NodeId.requestor),
         step_wait_task_started,
         step_wait_task_rejected,
         step_wait_settled,

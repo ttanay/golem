@@ -1,6 +1,9 @@
+from functools import partial
+
 from scripts.node_integration_tests import helpers
 
 from ..concent_base import ConcentTestPlaybook
+from ...test_config_base import NodeId
 
 
 class Playbook(ConcentTestPlaybook):
@@ -14,7 +17,7 @@ class Playbook(ConcentTestPlaybook):
             '.*' + '.*|.*'.join(fail_triggers + download_trigger) + '.*'
 
         log_match = helpers.search_output(
-            self.requestor_output_queue,
+            self.output_queues[NodeId.requestor],
             log_match_pattern,
         )
 
@@ -28,7 +31,7 @@ class Playbook(ConcentTestPlaybook):
                 self.forced_download_successful = True
 
         concent_fail = helpers.search_output(
-            self.provider_output_queue,
+            self.output_queues[NodeId.provider],
             ".*Concent request failed.*|.*Can't receive message from Concent.*",
         )
 
@@ -37,7 +40,7 @@ class Playbook(ConcentTestPlaybook):
             self.fail()
             return
 
-        return super().step_wait_task_finished()
+        return super().step_wait_task_finished(node_id=NodeId.requestor)
 
     def step_verify_forced_download_happened(self):
         if self.forced_download_successful:
@@ -49,12 +52,15 @@ class Playbook(ConcentTestPlaybook):
             )
 
     steps = ConcentTestPlaybook.initial_steps + (
-        ConcentTestPlaybook.step_create_task,
-        ConcentTestPlaybook.step_get_task_id,
-        ConcentTestPlaybook.step_get_task_status,
+        partial(ConcentTestPlaybook.step_create_task, node_id=NodeId.requestor),
+        partial(ConcentTestPlaybook.step_get_task_id, node_id=NodeId.requestor),
+        partial(ConcentTestPlaybook.step_get_task_status,
+                node_id=NodeId.requestor),
         step_wait_task_finished,
         step_verify_forced_download_happened,
         ConcentTestPlaybook.step_verify_output,
-        ConcentTestPlaybook.step_get_subtasks,
-        ConcentTestPlaybook.step_verify_provider_income,
+        partial(ConcentTestPlaybook.step_get_subtasks,
+                node_id=NodeId.requestor),
+        partial(ConcentTestPlaybook.step_verify_node_income,
+                node_id=NodeId.provider, from_node=NodeId.requestor),
     )

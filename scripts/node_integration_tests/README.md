@@ -25,8 +25,9 @@ behavior - e.g. a requestor node that always fails the submitted results.
 This allows us to simulate various scenarios of two nodes interacting with
 each other and verifying they do indeed react the way we intend them to.
 
-We could theoretically create tests that employ more than two golem instances
-but we don't do that yet and it's not yet supported by the test suite. 
+In most cases there are two nodes (provider and requestor), and this is a
+default configuration for tests. But it is possible to define any number of
+nodes with custom names.
 
 ### Components
 
@@ -41,8 +42,12 @@ introduce modifications to the regular node behavior, implemented using
 #### playbooks
 
 The scripts for the tests themselves, each of which is an instance of
-`playbooks.base.NodeTestPlaybook` and is comprised of discrete steps
-through which the execution of the test progresses.
+`playbooks.base.NodeTestPlaybook`, is comprised of discrete steps through which
+the execution of the test progresses.
+
+A configuration for each test is a class that derives from
+`playbooks.test_config_base.TestConfigBase`. This allows to use it outside of
+test itself, like setting up key reuse by pytest (see below).
 
 After both golem instances are spawned, most of the steps consist of RPC calls
 to either the requestor or to the provider node and checking for expected

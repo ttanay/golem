@@ -1,8 +1,10 @@
 from datetime import datetime
+from functools import partial
 from pathlib import Path
 import typing
 
 from ...base import NodeTestPlaybook
+from ...test_config_base import NodeId
 
 
 class Playbook(NodeTestPlaybook):
@@ -38,15 +40,20 @@ class Playbook(NodeTestPlaybook):
         self.success()
 
     steps: typing.Tuple = NodeTestPlaybook.initial_steps + (
-        NodeTestPlaybook.step_create_task,
-        NodeTestPlaybook.step_get_task_id,
-        NodeTestPlaybook.step_get_task_status,
-        NodeTestPlaybook.step_wait_task_finished,
+        partial(NodeTestPlaybook.step_create_task, node_id=NodeId.requestor),
+        partial(NodeTestPlaybook.step_get_task_id, node_id=NodeId.requestor),
+        partial(NodeTestPlaybook.step_get_task_status,
+                node_id=NodeId.requestor),
+        partial(NodeTestPlaybook.step_wait_task_finished,
+                node_id=NodeId.requestor),
         NodeTestPlaybook.step_verify_output,
-        NodeTestPlaybook.step_get_known_tasks,
-        NodeTestPlaybook.step_create_task,
-        NodeTestPlaybook.step_get_task_id,
-        NodeTestPlaybook.step_get_task_status,
-        NodeTestPlaybook.step_wait_task_finished,
+        partial(NodeTestPlaybook.step_get_known_tasks,
+                node_id=NodeId.requestor),
+        partial(NodeTestPlaybook.step_create_task, node_id=NodeId.requestor),
+        partial(NodeTestPlaybook.step_get_task_id, node_id=NodeId.requestor),
+        partial(NodeTestPlaybook.step_get_task_status,
+                node_id=NodeId.requestor),
+        partial(NodeTestPlaybook.step_wait_task_finished,
+                node_id=NodeId.requestor),
         step_verify_separate_output_directories
     )
