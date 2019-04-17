@@ -473,7 +473,7 @@ class FfprobeStreamReport:
         return f'{type(self).__name__}({", ".join(messages)} )'
 
 
-class FfprobeMediaStreamReport(FfprobeStreamReport):
+class FfprobeAudioAndVideoStreamReport(FfprobeStreamReport):
     ATTRIBUTES_TO_COMPARE = FfprobeStreamReport.ATTRIBUTES_TO_COMPARE | {
         'duration',
         'bitrate',
@@ -496,12 +496,13 @@ class FfprobeMediaStreamReport(FfprobeStreamReport):
         return super().__repr__()
 
 
-class FfprobeVideoStreamReport(FfprobeMediaStreamReport):
-    ATTRIBUTES_TO_COMPARE = FfprobeMediaStreamReport.ATTRIBUTES_TO_COMPARE | {
-        'resolution',
-        'pixel_format',
-        'frame_rate',
-    }
+class FfprobeVideoStreamReport(FfprobeAudioAndVideoStreamReport):
+    ATTRIBUTES_TO_COMPARE = \
+        FfprobeAudioAndVideoStreamReport.ATTRIBUTES_TO_COMPARE | {
+            'resolution',
+            'pixel_format',
+            'frame_rate',
+        }
 
     def __init__(self, raw_report: dict):
         assert raw_report['codec_type'] == 'video'
@@ -543,12 +544,12 @@ class FfprobeVideoStreamReport(FfprobeMediaStreamReport):
         return super().__repr__()
 
 
-class FfprobeAudioStreamReport(FfprobeMediaStreamReport):
+class FfprobeAudioStreamReport(FfprobeAudioAndVideoStreamReport):
     def __init__(self, raw_report: dict):
         assert raw_report['codec_type'] == 'audio'
         super().__init__(raw_report)
 
-    ATTRIBUTES_TO_COMPARE = FfprobeMediaStreamReport.ATTRIBUTES_TO_COMPARE | {
+    ATTRIBUTES_TO_COMPARE = FfprobeAudioAndVideoStreamReport.ATTRIBUTES_TO_COMPARE | {
         'sample_rate',
         'sample_format',
         'channel_count',
