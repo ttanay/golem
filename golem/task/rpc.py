@@ -19,6 +19,7 @@ from golem.core import golem_async
 from golem.core import common
 from golem.core import deferred as golem_deferred
 from golem.core import simpleserializer
+from golem.core.variables import MAX_TASKS_PER_REQUESTOR
 from golem.ethereum import exceptions as eth_exceptions
 from golem.resource import resource
 from golem.rpc import utils as rpc_utils
@@ -102,6 +103,11 @@ def validate_client(client: Client):
             'toggle shutdown mode off to create new tasks.')
     if client.task_server is None:
         raise CreateTaskError("Golem is not ready")
+    task_manager = client.task_manager
+    if not task_manager is None and \
+            len(task_manager.get_progresses()) >= MAX_TASKS_PER_REQUESTOR:
+        raise CreateTaskError("Too many tasks. "
+                              "max=" + str(MAX_TASKS_PER_REQUESTOR))
 
 
 def prepare_and_validate_task_dict(client, task_dict):

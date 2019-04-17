@@ -23,7 +23,8 @@ from golem import constants as gconst
 from golem import utils
 from golem.core import common
 from golem.core import golem_async
-from golem.core.variables import NUM_OF_RES_TRANSFERS_NEEDED_FOR_VER
+from golem.core.variables import NUM_OF_RES_TRANSFERS_NEEDED_FOR_VER, \
+    MAX_TASKS_PER_REQUESTOR
 from golem.environments.environment import SupportStatus, UnsupportReason
 from golem.task.taskproviderstats import ProviderStatsManager
 
@@ -315,7 +316,6 @@ class TaskHeaderKeeper:
             min_price=0.0,
             remove_task_timeout=180,
             verification_timeout=3600,
-            max_tasks_per_requestor=10,
             task_archiver=None):
         # all computing tasks that this node knows about
         self.task_headers: typing.Dict[str, dt_tasks.TaskHeader] = {}
@@ -335,7 +335,6 @@ class TaskHeaderKeeper:
         self.verification_timeout = verification_timeout
         self.removed_task_timeout = remove_task_timeout
         self.environments_manager = environments_manager
-        self.max_tasks_per_requestor = max_tasks_per_requestor
         self.task_archiver = task_archiver
         self.node = node
 
@@ -522,7 +521,7 @@ class TaskHeaderKeeper:
     def check_max_tasks_per_owner(self, owner_key_id):
         owner_task_set = self._get_tasks_by_owner_set(owner_key_id)
 
-        if len(owner_task_set) <= self.max_tasks_per_requestor:
+        if len(owner_task_set) <= MAX_TASKS_PER_REQUESTOR:
             return
 
         by_age = sorted(owner_task_set,
@@ -530,7 +529,7 @@ class TaskHeaderKeeper:
 
         # leave alone the first (oldest) max_tasks_per_requestor
         # headers, remove the rest
-        to_remove = by_age[self.max_tasks_per_requestor:]
+        to_remove = by_age[MAX_TASKS_PER_REQUESTOR:]
 
         logger.warning("Too many tasks from %s, dropping %d tasks",
                        owner_key_id, len(to_remove))
