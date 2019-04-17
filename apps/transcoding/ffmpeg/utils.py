@@ -6,7 +6,8 @@ from pathlib import Path
 from typing import List, Optional
 
 from apps.transcoding import common
-from apps.transcoding.common import ffmpegException
+from apps.transcoding.common import ffmpegException, ffmpegExtractSplitError, \
+    ffmpegMergeReplaceError
 from apps.transcoding.ffmpeg.environment import ffmpegEnvironment
 from golem.core.common import HandleError
 from golem.docker.image import DockerImage
@@ -74,23 +75,26 @@ class StreamOperator:
             'Running video stream extraction and splitting '
             '[params = %s]',
             extra_data)
-        result = self._do_job_in_container(
-            self._get_dir_mapping(dir_manager, task_id),
-            extra_data,
-            env)
+        try:
+            result = self._do_job_in_container(
+                self._get_dir_mapping(dir_manager, task_id),
+                extra_data,
+                env)
+        except ffmpegException as exception:
+            raise ffmpegExtractSplitError(str(exception)) from exception
 
         split_result_file = os.path.join(host_dirs['output'],
                                          Commands.EXTRACT_AND_SPLIT.value[1])
         output_files = result.get('data', [])
         if split_result_file not in output_files:
-            raise ffmpegException('Result file {} does not exist'.
-                                  format(split_result_file))
+            raise ffmpegExtractSplitError(
+                'Result file {split_result_file} does not exist')
         logger.debug('Split result file is = %s [parts = %s]',
                      split_result_file, parts)
         with open(split_result_file) as f:
             params = json.load(f)  # FIXME: check status of splitting
             if params.get('status', 'Success') != 'Success':
-                raise ffmpegException('Splitting video failed')
+                raise ffmpegExtractSplitError('Splitting video failed')
             streams_list = list(map(
                 lambda x: x.get('video_segment'),
                 params.get('segments', [])))
@@ -114,7 +118,7 @@ class StreamOperator:
             os.makedirs(host_dirs['output'])
             os.makedirs(host_dirs['work'])
         except OSError:
-            raise ffmpegException(
+            raise ffmpegMergeReplaceError(
                 "Failed to prepare video merge directory structure")
         files = self._collect_files(host_dirs['resources'], chunks_on_host)
         chunks_in_container = list(map(
@@ -131,10 +135,11 @@ class StreamOperator:
         results = list()
         for file in files:
             if not os.path.isfile(file):
-                raise ffmpegException("Missing result file: {}".format(file))
+                raise ffmpegMergeReplaceError("Missing result file: {}".format(
+                    file))
             if os.path.dirname(file) != directory:
-                raise ffmpegException("Result file: {} should be in the \
-                proper directory: {}".format(file, directory))
+                raise ffmpegMergeReplaceError("Result file: {} should be in \
+                    the proper directory: {}".format(file, directory))
 
             results.append(file)
 
@@ -182,10 +187,13 @@ class StreamOperator:
             container_files['in'],
             'ro')])
 
-        self._do_job_in_container(
-            DockerTaskThread.specify_dir_mapping(**host_dirs),
-            extra_data,
-            env)
+        try:
+            self._do_job_in_container(
+                DockerTaskThread.specify_dir_mapping(**host_dirs),
+                extra_data,
+                env)
+        except ffmpegException as exception:
+            raise ffmpegMergeReplaceError(str(exception)) from exception
 
         logger.info("Video merged and streams replaced successfully!")
 
