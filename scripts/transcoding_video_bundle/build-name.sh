@@ -3,38 +3,41 @@
 input_file="$1"
 
 log_level=error
+
 function ffprobe_show_entries {
     local input_file="$1"
     local query="$2"
+    local stream="$3"
+    local extra_format="$4"
 
-    printf "%s" $(
-        ffprobe                                              \
-            -v            error                              \
-            -show_entries "$query"                           \
-            -of           default=noprint_wrappers=1:nokey=1 \
-            "$input_file"
-    )
+    if [[ "$stream" != "" ]]; then
+        stream_selector="-select_streams $stream"
+    else
+        stream_selector=""
+    fi
+
+    raw_result="$(
+        ffprobe                                          \
+            -v            error                          \
+            $stream_selector                             \
+            -show_entries "$query"                       \
+            -of           "compact=nokey=1$extra_format" \
+            "$input_file"                                   |
+            grep --invert-match --regexp "^program|stream|" |
+            grep --invert-match --regexp "^$"               |
+            cut --delimiter '|' --field 2
+    )"
+
+    # NOTE: If the file contains side data `ffprobe -show_entries stream` prints [SIDE_DATA] section in addition to the usual [STREAM].
+    # When using the `compact` output format it gets attached to the end of the last value without a separating newline.
+    # I don't see a way to tell ffprobe not to do it so we'll just strip it from the end of the string if present.
+    result="${raw_result%side_data}"
+
+    printf "%s" "$result"
 }
 
-function ffprobe_get_stream_attribute {
-    local input_file="$1"
-    local stream="$2"
-    local attribute="$3"
-
-    printf "%s" $(
-        ffprobe                                                \
-            -v              error                              \
-            -select_streams "$stream"                          \
-            -show_entries   "stream=$attribute"                \
-            -of             default=noprint_wrappers=1:nokey=1 \
-            "$input_file"
-    )
-}
-
-video_codec="$(ffprobe_get_stream_attribute "$input_file" "v:0" codec_name)"
-
-width="$(ffprobe_get_stream_attribute "$input_file" "v:0" width)"
-height="$(ffprobe_get_stream_attribute "$input_file" "v:0" height)"
+width="$(ffprobe_show_entries  "$input_file" stream=width  "v:0")"
+height="$(ffprobe_show_entries "$input_file" stream=height "v:0")"
 
 duration="$(ffprobe_show_entries "$input_file" format=duration)"
 if [[ "$duration" == "N/A" ]]; then
@@ -43,29 +46,30 @@ else
     duration_string="$(printf "%.0fs" "$duration")"
 fi
 
-video_stream_count="$(ffprobe -show_entries stream=codec_type -select_streams v -of default=noprint_wrappers=1:nokey=1 -hide_banner -v error "$input_file" | wc -l)"
-audio_stream_count="$(ffprobe -show_entries stream=codec_type -select_streams a -of default=noprint_wrappers=1:nokey=1 -hide_banner -v error "$input_file" | wc -l)"
-sub_stream_count="$(ffprobe -show_entries stream=codec_type -select_streams s -of default=noprint_wrappers=1:nokey=1 -hide_banner -v error "$input_file" | wc -l)"
-data_stream_count="$(ffprobe -show_entries stream=codec_type -select_streams d -of default=noprint_wrappers=1:nokey=1 -hide_banner -v error "$input_file" | wc -l)"
+video_stream_count="$(ffprobe_show_entries   "$input_file" stream=codec_type v | grep --count "")" || true
+audio_stream_count="$(ffprobe_show_entries   "$input_file" stream=codec_type a | grep --count "")" || true
+subitle_stream_count="$(ffprobe_show_entries "$input_file" stream=codec_type d | grep --count "")" || true
+data_stream_count="$(ffprobe_show_entries    "$input_file" stream=codec_type s | grep --count "")" || true
 
-if (( $audio_stream_count > 0 )); then
-    for (( index=0; index < ${audio_stream_count}; index=index+1 )); do
-        audio_codec="$(ffprobe_get_stream_attribute "$input_file" "a:$index" codec_name)"
-        video_codec="$video_codec+$audio_codec"
-    done
-fi
+stream_counts="$(printf "v%da%ds%dd%d" "$video_stream_count" "$audio_stream_count" "$subtitle_stream_count" "$data_stream_count")"
 
-stream_count="$(printf "v%sa%ss%sd%s" "$video_stream_count" "$audio_stream_count" "$sub_stream_count" "$data_stream_count")"
+codecs="$(ffprobe_show_entries "$input_file" stream=codec_name "v:0" )"
+for (( index=0; index < ${audio_stream_count}; index=index+1 )); do
+    codec="$(ffprobe_show_entries "$input_file" stream=codec_name "a:$index")"
+    codecs="$codecs+$codec"
+done
 
-frames=$(ffprobe -show_frames "$input_file" 2> /dev/null | grep "pict_type=" | sed 's/pict_type=\(.*\)$/\1/' | tr -d '\n')
-frame_count="$(echo -n "$frames"                   | wc --chars)"
+frames=$(ffprobe_show_entries "$input_file" frame=pict_type v:0)
+frame_count="$(echo   -n "$frames"                   | wc --chars)"
 i_frame_count="$(echo -n "$frames" | sed 's/[^I]//g' | wc --chars)"
 p_frame_count="$(echo -n "$frames" | sed 's/[^P]//g' | wc --chars)"
 b_frame_count="$(echo -n "$frames" | sed 's/[^B]//g' | wc --chars)"
 
-frame_rate="$(ffprobe_get_stream_attribute "$input_file" "v:0" r_frame_rate)"
-frame_rate_float=$(
-    python -c "print($frame_rate)"
-)
+frame_rate="$(ffprobe_show_entries "$input_file" stream=avg_frame_rate "v:0")"
+if [[ "$frame_rate" != "0/0" ]]; then
+    frame_rate_string="$(printf "%gfps" "$(python -c "print($frame_rate)")")"
+else
+    frame_rate_string="_"
+fi
 
-printf "[%s,%sx%s,%s,%s,i%dp%db%d,fps%.2f]\n" "$video_codec" "$width" "$height" "$duration_string" "$stream_count" "$i_frame_count" "$p_frame_count" "$b_frame_count" "$frame_rate_float"
+printf "[%s,%sx%s,%s,%s,i%dp%db%d,%s]\n" "$codecs" "$width" "$height" "$duration_string" "$stream_counts" "$i_frame_count" "$p_frame_count" "$b_frame_count" "$frame_rate_string"
