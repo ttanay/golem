@@ -161,7 +161,7 @@ class DockerTaskThread(TaskThread):
             DockerBind(self.dir_mapping.output, DockerJob.OUTPUT_DIR)
         ]
 
-    def _run_docker_job(self) -> Optional[int]:
+    def _run_docker_job(self) -> Optional[int]:  # noqa pylint: disable=too-many-locals
         self.dir_mapping.mkdirs()
 
         binds = self._get_default_binds()
@@ -249,7 +249,7 @@ class DockerTaskThread(TaskThread):
             pass
         except requests.exceptions.BaseHTTPError:
             if self.docker_manager:
-                self.docker_manager.recover_vm_connectivity(self.job.kill)
+                self.docker_manager.recover_vm_connectivity(self.job.kill)  # pylint: disable=no-member
 
     @staticmethod
     def _exit_code_message(exit_code):

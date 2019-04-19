@@ -115,7 +115,7 @@ class TestffmpegTask(TempDirFixture):
     def test_build_task_not_supported_container(self):
         d = self._task_dictionary
         d['options']['container'] = 'xxx'
-        with self.assertRaises(TranscodingTaskBuilderException) as cxt:
+        with self.assertRaises(TranscodingTaskBuilderException):
             self.tt.task_builder_type.build_definition(self.tt, d)
 
     def test_build_task_different_codecs(self):

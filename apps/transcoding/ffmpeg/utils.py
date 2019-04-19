@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from apps.transcoding import common
 from apps.transcoding.common import ffmpegException
@@ -33,7 +33,7 @@ class Commands(enum.Enum):
 
 class StreamOperator:
     @HandleError(ValueError, common.not_valid_json)
-    def split_video(self, input_stream: str, parts: int,
+    def split_video(self, input_stream: str, parts: int,  # noqa pylint: disable=too-many-locals
                     dir_manager: DirManager, task_id: str):
         name = os.path.basename(input_stream)
         tmp_task_dir = dir_manager.get_task_temporary_dir(task_id)
@@ -47,7 +47,7 @@ class StreamOperator:
             'path_to_stream': stream_container_path,
             'parts': parts
         }
-        logger.debug('Running video splitting [params = {}]'.format(extra_data))
+        logger.debug('Running video splitting [params = %s]', extra_data)
 
         result = self._do_job_in_container(
             self._get_dir_mapping(dir_manager, task_id),
@@ -58,8 +58,8 @@ class StreamOperator:
         if split_result_file not in output_files:
             raise ffmpegException('Result file {} does not exist'.
                                   format(split_result_file))
-        logger.debug('Split result file is = {} [parts = {}]'.
-                     format(split_result_file, parts))
+        logger.debug('Split result file is = %s [parts = %s]',
+                     split_result_file, parts)
         with open(split_result_file) as f:
             params = json.load(f)  # FIXME: check status of splitting
             if params.get('status', 'Success') != 'Success':
@@ -88,22 +88,22 @@ class StreamOperator:
                 files))
 
     @staticmethod
-    def _collect_files(dir, files):
+    def _collect_files(directory, files):
         # each chunk must be in the same directory
         results = list()
         for file in files:
             if not os.path.isfile(file):
                 raise ffmpegException("Missing result file: {}".format(file))
-            if os.path.dirname(file) != dir:
+            if os.path.dirname(file) != directory:
                 raise ffmpegException("Result file: {} should be in the \
-                proper directory: {}".format(file, dir))
+                proper directory: {}".format(file, directory))
 
             results.append(file)
 
         return results
 
     def merge_video(self, filename, task_dir, chunks):
-        resources_dir, output_dir, work_dir, chunks = \
+        _, output_dir, work_dir, chunks = \
             self._prepare_merge_job(task_dir, chunks)
 
         extra_data = {
@@ -114,7 +114,7 @@ class StreamOperator:
         }
 
         logger.info('Merging video')
-        logger.debug('Merge params: {}'.format(extra_data))
+        logger.debug('Merge params: %s', extra_data)
 
         dir_mapping = DockerTaskThread.specify_dir_mapping(output=output_dir,
                                                            temporary=work_dir,
@@ -129,7 +129,7 @@ class StreamOperator:
 
     @staticmethod
     def _do_job_in_container(dir_mapping, extra_data: dict,
-                             env: Environment = None,
+                             env: Optional[Environment] = None,
                              timeout: int = 120):
 
         if env:
