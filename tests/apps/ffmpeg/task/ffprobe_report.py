@@ -332,7 +332,7 @@ class FfprobeFormatReport:
 
 
 class FuzzyDuration:
-    def __init__(self, duration: Union[float, int], tolerance: float):
+    def __init__(self, duration: Union[float, int], tolerance: float) -> None:
         assert tolerance >= 0
 
         self._duration = duration
@@ -364,7 +364,7 @@ class FuzzyDuration:
 
 
 class FuzzyInt:
-    def __init__(self, value: int, tolerance_percent: int):
+    def __init__(self, value: int, tolerance_percent: int) -> None:
         assert tolerance_percent >= 0
 
         self._value = value
