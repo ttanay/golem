@@ -518,7 +518,8 @@ class FfprobeVideoStreamReport(FfprobeAudioAndVideoStreamReport):
             return (width, height)
         if resolution is not None and width is None and height is None:
             return resolution
-        if isinstance(resolution, Collection) and tuple(resolution) == (width, height):
+        if isinstance(resolution, Collection) and \
+                tuple(resolution) == (width, height):
             return resolution
 
         return (resolution, width, height)
