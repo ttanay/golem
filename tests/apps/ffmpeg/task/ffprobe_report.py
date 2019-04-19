@@ -402,7 +402,7 @@ class FfprobeStreamReport:
         'start_time'
     }
 
-    def __init__(self, raw_report: dict):
+    def __init__(self, raw_report: dict) -> None:
         self._raw_report = raw_report
 
     @property
@@ -506,7 +506,7 @@ class FfprobeVideoStreamReport(FfprobeAudioAndVideoStreamReport):
             'frame_rate',
         }
 
-    def __init__(self, raw_report: dict):
+    def __init__(self, raw_report: dict) -> None:
         assert raw_report['codec_type'] == 'video'
         super().__init__(raw_report)
 
