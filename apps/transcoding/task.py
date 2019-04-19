@@ -193,7 +193,6 @@ class TranscodingTaskBuilder(CoreTaskBuilder):
     SUPPORTED_FILE_TYPES: List[Container] = []
     SUPPORTED_VIDEO_CODECS: List[VideoCodec] = []
     SUPPORTED_AUDIO_CODECS: List[AudioCodec] = []
-    TASK_CLASS: CoreTask = TranscodingTask
 
     @classmethod
     def build_full_definition(cls, task_type: CoreTaskTypeInfo,
