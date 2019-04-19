@@ -252,7 +252,8 @@ RAW_REPORT_ORIGINAL = {
             'creation_time': '2010-08-21T18:06:43.000000Z',
             'TITLE': 'Big Buck Bunny - test 8',
             'DATE_RELEASED': '2010',
-            'COMMENT': 'Matroska Validation File 8, secondary audio commentary track, misc subtitle tracks'}}}
+            'COMMENT': 'Matroska Validation File 8, secondary audio commentary '
+                       'track, misc subtitle tracks'}}}
 
 RAW_REPORT_ORIGINAL_WITH_REMOVED_SUBTITLES = {
     'streams':
@@ -342,7 +343,8 @@ RAW_REPORT_ORIGINAL_WITH_REMOVED_SUBTITLES = {
             'creation_time': '2010-08-21T18:06:43.000000Z',
             'TITLE': 'Big Buck Bunny - test 8',
             'DATE_RELEASED': '2010',
-            'COMMENT': 'Matroska Validation File 8, secondary audio commentary track, misc subtitle tracks'}}}
+            'COMMENT': 'Matroska Validation File 8, secondary audio commentary '
+                       'track, misc subtitle tracks'}}}
 
 RAW_REPORT_TRANSCODED = {
     'streams':
@@ -445,7 +447,8 @@ RAW_REPORT_TRANSCODED = {
         'size': '31771845', 'bit_rate': '5521936',
         'probe_score': 100,
         'tags': {'title': 'Big Buck Bunny - test 8',
-                 'COMMENT': 'Matroska Validation File 8, secondary audio commentary track, misc subtitle tracks',
+                 'COMMENT': 'Matroska Validation File 8, secondary audio '
+                            'commentary track, misc subtitle tracks',
                  'DATE_RELEASED': '2010',
                  'ENCODER': 'Lavf58.20.100'}}}
 
