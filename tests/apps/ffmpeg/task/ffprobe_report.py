@@ -494,9 +494,6 @@ class FfprobeAudioAndVideoStreamReport(FfprobeStreamReport):
     def frame_count(self) -> Union[str, Any]:
         return number_if_possible(self._raw_report.get('nb_frames'))
 
-    def __repr__(self):
-        return super().__repr__()
-
 
 class FfprobeVideoStreamReport(FfprobeAudioAndVideoStreamReport):
     ATTRIBUTES_TO_COMPARE = \
@@ -542,9 +539,6 @@ class FfprobeVideoStreamReport(FfprobeAudioAndVideoStreamReport):
         except (ValueError, TypeError):
             return value
 
-    def __repr__(self):
-        return super().__repr__()
-
 
 class FfprobeAudioStreamReport(FfprobeAudioAndVideoStreamReport):
     def __init__(self, raw_report: dict):
@@ -574,9 +568,6 @@ class FfprobeAudioStreamReport(FfprobeAudioAndVideoStreamReport):
     def channel_layout(self)-> Optional[str]:
         return self._raw_report.get('channel_layout')
 
-    def __repr__(self):
-        return super().__repr__()
-
 
 class FfprobeSubtitleStreamReport(FfprobeStreamReport):
     def __init__(self, raw_report: dict):
@@ -591,14 +582,8 @@ class FfprobeSubtitleStreamReport(FfprobeStreamReport):
     def language(self):
         return self._raw_report.get('tags').get('language')
 
-    def __repr__(self):
-        return super().__repr__()
-
 
 class FfprobeDataStreamReport(FfprobeStreamReport):
     def __init__(self, raw_report: dict):
         assert raw_report['codec_type'] == 'data'
         super().__init__(raw_report)
-
-    def __repr__(self):
-        return super().__repr__()
