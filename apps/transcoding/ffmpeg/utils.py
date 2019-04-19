@@ -67,8 +67,8 @@ class StreamOperator:
             streams_list = list(map(lambda x: (x.get('video_segment'),
                                                x.get('playlist')),
                                     params.get('segments', [])))
-            logger.info('Stream {} was successfully split to {}'
-                        .format(input_stream, streams_list))
+            logger.info('Stream %s was successfully split to %s',
+                        input_stream, streams_list)
             return streams_list
 
     def _prepare_merge_job(self, task_dir, chunks):
