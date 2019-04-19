@@ -127,7 +127,7 @@ class FfprobeFormatReport:
     @property
     def program_count(self) -> Optional[str]:
         return number_if_possible(
-            self._raw_report.get('format').get('nb_programs'))
+            self._raw_report.get('format', {}).get('nb_programs'))
 
     @classmethod
     def _classify_streams(cls,
