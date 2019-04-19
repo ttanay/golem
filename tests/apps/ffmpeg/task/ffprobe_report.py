@@ -542,7 +542,7 @@ class FfprobeVideoStreamReport(FfprobeAudioAndVideoStreamReport):
 
 
 class FfprobeAudioStreamReport(FfprobeAudioAndVideoStreamReport):
-    def __init__(self, raw_report: dict):
+    def __init__(self, raw_report: dict) -> None:
         assert raw_report['codec_type'] == 'audio'
         super().__init__(raw_report)
 
@@ -571,7 +571,7 @@ class FfprobeAudioStreamReport(FfprobeAudioAndVideoStreamReport):
 
 
 class FfprobeSubtitleStreamReport(FfprobeStreamReport):
-    def __init__(self, raw_report: dict):
+    def __init__(self, raw_report: dict) -> None:
         assert raw_report['codec_type'] == 'subtitle'
         super().__init__(raw_report)
 
@@ -585,6 +585,6 @@ class FfprobeSubtitleStreamReport(FfprobeStreamReport):
 
 
 class FfprobeDataStreamReport(FfprobeStreamReport):
-    def __init__(self, raw_report: dict):
+    def __init__(self, raw_report: dict) -> None:
         assert raw_report['codec_type'] == 'data'
         super().__init__(raw_report)
