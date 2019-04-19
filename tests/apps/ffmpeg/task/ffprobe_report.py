@@ -546,7 +546,7 @@ class FfprobeAudioStreamReport(FfprobeAudioAndVideoStreamReport):
         assert raw_report['codec_type'] == 'audio'
         super().__init__(raw_report)
 
-    ATTRIBUTES_TO_COMPARE = FfprobeAudioAndVideoStreamReport.ATTRIBUTES_TO_COMPARE | {
+    ATTRIBUTES_TO_COMPARE = FfprobeAudioAndVideoStreamReport.ATTRIBUTES_TO_COMPARE | {  # noqa pylint: disable=line-too-long
         'sample_rate',
         'sample_format',
         'channel_count',
