@@ -58,7 +58,7 @@ class FfprobeFormatReport:
         'program_count'
     }
 
-    def __init__(self, raw_report: dict):
+    def __init__(self, raw_report: dict) -> None:
         self._raw_report = raw_report
         self._stream_reports = self._create_stream_reports(raw_report)
 
