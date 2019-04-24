@@ -26,7 +26,7 @@ This allows us to simulate various scenarios of two nodes interacting with
 each other and verifying they do indeed react the way we intend them to.
 
 In most cases there are two nodes (provider and requestor), and this is a
-default configuration for tests. But it is possible to define any number of
+default configuration for tests. If needed, it is possible to define any number of
 nodes with custom names.
 
 ### Components
