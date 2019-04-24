@@ -15,6 +15,26 @@ if TYPE_CHECKING:
 
 
 class DictAction(argparse.Action):
+    """
+    This action must be used by arguments with nargs=2.
+    It collects arguments where first argument is a key in a dictionary and
+    second is value.
+    If a key is repeated, the value of last occurence is used.
+
+    Example:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--foo', nargs=2, action=DictAction)
+    args = parser.parse_args([
+        '--foo', 'a', '1',
+        '--foo', 'b', '2',
+        '--foo', 'a', '3',
+    ])
+    assert args.foo == {
+        'a': '3',
+        'b': '2',
+    }
+    """
+
     def __call__(self, parser, namespace, values, option_string=None) -> None:
         assert(self.nargs == 2)
         dest = getattr(namespace, self.dest)
