@@ -1,5 +1,7 @@
 import os
+import shutil
 import uuid
+from tempfile import TemporaryDirectory
 from unittest import mock
 
 from golem_messages.factories.datastructures import p2p as dt_p2p_factory
@@ -9,6 +11,7 @@ from apps.transcoding.common import TranscodingTaskBuilderException, \
 from apps.transcoding.ffmpeg.task import ffmpegTaskTypeInfo
 from apps.transcoding.ffmpeg.utils import Commands
 from golem.core.common import timeout_to_deadline
+from golem.docker.job import DockerJob
 from golem.docker.manager import DockerManager
 from golem.docker.task_thread import DockerTaskThread
 from golem.resource.dirmanager import DirManager
@@ -158,6 +161,26 @@ class TestffmpegTask(TempDirFixture):
         ffmpeg_task = self._build_ffmpeg_task()
         with self.assertRaises(AssertionError):
             ffmpeg_task._get_extra_data(1)
+
+    def test_extra_data_for_files_with_multiple_dots_in_name(self):
+        with TemporaryDirectory(prefix='test-with-dots') as tmp_dir:
+            resource_stream_with_dot = os.path.join(tmp_dir, 'test.video.mp4')
+            shutil.copyfile(self.RESOURCE_STREAM, resource_stream_with_dot)
+            self.RESOURCE_STREAM = resource_stream_with_dot
+
+            ffmpeg_task = self._build_ffmpeg_task()
+
+            extra_data = ffmpeg_task._get_extra_data(0)
+            self.assertEqual(
+                extra_data['track'],
+                os.path.join(
+                    DockerJob.RESOURCES_DIR,
+                    'test.video[num=0].m3u8'))
+            self.assertEqual(
+                extra_data['output_stream'],
+                os.path.join(
+                    DockerJob.OUTPUT_DIR,
+                    'test.video[num=0]_TC.m3u8'))
 
     def test_extra_data(self):
         ffmpeg_task = self._build_ffmpeg_task()
