@@ -132,11 +132,8 @@ example:
 full usage:
 
 ```
-run_test.py [-h] [--task-package TASK_PACKAGE]
-            [--task-settings TASK_SETTINGS]
-            [--provider-datadir PROVIDER_DATADIR]
-            [--requestor-datadir REQUESTOR_DATADIR] [--mainnet]
-            test_path
+run_test.py [-h] [--task-package TASK_PACKAGE] [--task-settings TASK_SETTINGS]
+            [--datadir NODE PATH] [--mainnet] test_path
 
 Runs a single test playbook.
 
@@ -150,10 +147,7 @@ optional arguments:
                         a directory within `tasks` containing the task package
   --task-settings TASK_SETTINGS
                         the task settings set to use, see `tasks.__init__.py`
-  --provider-datadir PROVIDER_DATADIR
-                        the provider node's datadir
-  --requestor-datadir REQUESTOR_DATADIR
-                        the requestor node's datadir
+  --datadir NODE PATH   override datadir path for given node
   --mainnet             use the mainnet environment to run the test (the
                         playbook must also use mainnet)
   --dump-output-on-crash
