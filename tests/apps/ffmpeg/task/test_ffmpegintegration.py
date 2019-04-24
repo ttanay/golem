@@ -167,6 +167,9 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
                                                video_file,
                                                video_codec,
                                                container):
+        if video_codec not in container.get_supported_video_codecs():
+            pytest.skip("Unsupported container/video codec combination")
+
         operation = SimulatedTranscodingOperation(
             task_executor=self,
             experiment_name="codec change",
