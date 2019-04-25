@@ -94,12 +94,15 @@ class NodeTestPlaybook:
 
         self.stop(1)
 
-    def success(self):
+    def _success(self):
         print("Test run completed in {} seconds after {} steps.".format(
             self.time_elapsed, self.current_step + 1, ))
         self.stop(0)
 
     def next(self):
+        if self.current_step == len(self.steps) - 1:
+            self._success()
+            return
         self.current_step += 1
 
     def previous(self):
@@ -336,7 +339,7 @@ class NodeTestPlaybook:
                 return
 
             print("All subtasks accounted for.")
-            self.success()
+            self.next()
 
         return self.call(node_id, 'pay.incomes', on_success=on_success)
 

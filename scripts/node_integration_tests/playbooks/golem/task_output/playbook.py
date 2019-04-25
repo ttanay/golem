@@ -37,7 +37,7 @@ class Playbook(NodeTestPlaybook):
                     self.fail(f'Output directory: {path.resolve()} does not'
                               f'match the expected format.')
 
-        self.success()
+        self.next()
 
     steps: typing.Tuple = NodeTestPlaybook.initial_steps + (
         partial(NodeTestPlaybook.step_create_task, node_id=NodeId.requestor),

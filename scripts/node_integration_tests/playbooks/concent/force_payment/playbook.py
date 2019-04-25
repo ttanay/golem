@@ -138,7 +138,7 @@ class Playbook(ConcentTestPlaybook):
                 self.fail()
             if balance == required_balance:
                 print("Payment received! \\o/ ... total: %s GNT" % balance)
-                self.success()
+                self.next()
             else:
                 if datetime.datetime.now() > self.payment_timeout:
                     self.fail("Blockchain payment timed out... ")

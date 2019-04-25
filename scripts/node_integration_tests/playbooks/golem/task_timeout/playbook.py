@@ -70,9 +70,6 @@ class Playbook(NodeTestPlaybook):
                              self.previous_task_id, [],
                              on_success=on_success)
 
-    def step_success(self):
-        self.success()
-
     steps: typing.Tuple = NodeTestPlaybook.initial_steps + (
         partial(NodeTestPlaybook.step_create_task, node_id=NodeId.requestor),
         partial(NodeTestPlaybook.step_get_task_id, node_id=NodeId.requestor),
@@ -89,5 +86,4 @@ class Playbook(NodeTestPlaybook):
                 node_id=NodeId.requestor),
         NodeTestPlaybook.step_wait_task_finished,
         NodeTestPlaybook.step_verify_output,
-        step_success,
     )

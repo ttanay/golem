@@ -7,7 +7,7 @@ from ....test_config_base import NodeId
 class Playbook(NodeTestPlaybook):
     def step_verify_deposit_balance_call(self):
         def on_success(_):
-            self.success()
+            self.next()
 
         def on_error(error):
             self.fail(error)

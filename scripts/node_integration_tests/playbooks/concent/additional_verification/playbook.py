@@ -100,7 +100,7 @@ class Playbook(ConcentTestPlaybook):
                 return
             if any([t in match for t in settled_trigger]):
                 print("Concent verification successful.")
-                self.success()
+                self.next()
                 return
 
         if datetime.datetime.now() > self.concent_verification_timeout:

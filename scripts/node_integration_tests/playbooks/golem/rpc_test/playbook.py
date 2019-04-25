@@ -9,7 +9,7 @@ class Playbook(NodeTestPlaybook):
         def on_success(result):
             if result['value'] and result['status'] and result['timelock']:
                 print("Result correct %s" % result)
-                self.success()
+                self.next()
             else:
                 print("Unexpected result: %s" % result)
 
