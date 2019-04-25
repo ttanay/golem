@@ -75,8 +75,7 @@ class NodeTestPlaybook:
 
     @property
     def current_step_name(self) -> str:
-        method = self.current_step_method
-        return method.__name__ if method else ''
+        return repr(self.current_step_method)
 
     @property
     def time_elapsed(self):
@@ -194,16 +193,15 @@ class NodeTestPlaybook:
 
     def step_verify_peer_connection(self, node_id: NodeId, target_node: NodeId):
         def on_success(result):
-            if len(result) > 1:
+            if len(result) > len(self.config.current_nodes):
                 print("Too many peers")
                 self.fail()
                 return
-            elif len(result) == 1:
-                peer = result[0]
+            elif len(result) > 0:
                 expected_peer_key = self.nodes_keys[target_node]
-                if peer['key_id'] != expected_peer_key:
-                    print(f"Connected peer: {peer.key} != expected peer:"
-                          " {expected_peer_key}")
+                if expected_peer_key not in [peer['key_id'] for peer in result]:
+                    print(f"Expected peer: {expected_peer_key} not in connected"
+                          " peers: {result}")
                     self.fail()
                     return
 
@@ -313,11 +311,11 @@ class NodeTestPlaybook:
 
     def step_get_subtasks(self, node_id: NodeId):
         def on_success(result):
-            self.subtasks = [
+            self.subtasks = {
                 s.get('subtask_id')
                 for s in result
                 if s.get('status') == 'Finished'
-            ]
+            }
             if not self.subtasks:
                 self.fail("No subtasks found???")
             self.next()
@@ -327,12 +325,12 @@ class NodeTestPlaybook:
 
     def step_verify_node_income(self, node_id: NodeId, from_node: NodeId):
         def on_success(result):
-            payments = [
+            payments = {
                 p.get('subtask')
                 for p in result
                 if p.get('payer') == self.nodes_keys[from_node]
-            ]
-            unpaid = set(self.subtasks) - set(payments)
+            }
+            unpaid = self.subtasks - payments
             if unpaid:
                 print("Found subtasks with no matching payments: %s" % unpaid)
                 self.fail()

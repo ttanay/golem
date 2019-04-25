@@ -1,4 +1,4 @@
-import enum
+import aenum
 import os
 from typing import (
     Any,
@@ -43,16 +43,16 @@ class NodeConfig:
         return f"<{self.__class__.__name__}: {self.__dict__}"
 
 
-class NodeId(enum.Enum):
+class NodeId(aenum.AutoEnum):
     """
     This enum holds commonly used nodes names.
     Feel free to extend this enum in your tests that require more nodes.
     """
-    def _generate_next_value_(name, start, count, last_values):
+    def _generate_next_value_(name, start, count, last_values, *args, **kwds):
         return name
 
-    requestor = enum.auto()
-    provider = enum.auto()
+    requestor
+    provider
 
 
 def make_node_config_from_env(role: str, counter: int) -> NodeConfig:
@@ -63,7 +63,8 @@ def make_node_config_from_env(role: str, counter: int) -> NodeConfig:
     node_config.password = os.environ.get(f'GOLEM_{role}_PASSWORD',
                                           node_config.password)
     node_config.rpc_port = \
-        int(os.environ.get(f'GOLEM_{role}_RPC_PORT', 61000 + counter))
+        int(os.environ.get(f'GOLEM_{role}_RPC_PORT',
+                           node_config.rpc_port + counter))
     return node_config
 
 
@@ -73,7 +74,7 @@ class TestConfigBase:
         self.dump_output_on_fail = False
 
         self.nodes: Dict[NodeId, Union[NodeConfig, List[NodeConfig]]] = {}
-        for i, node_id in enumerate(NodeId):
+        for i, node_id in enumerate([NodeId.requestor, NodeId.provider]):
             self.nodes[node_id] = make_node_config_from_env(
                 node_id.value.upper(), i)
         self._nodes_index = 0
