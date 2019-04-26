@@ -5,9 +5,15 @@ from typing import (
     Dict,
     List,
     Optional,
+    TYPE_CHECKING,
     Union,
 )
 from scripts.node_integration_tests import helpers
+
+if TYPE_CHECKING:
+    # This prevents mypy from freaking out about enum it doesn't understand.
+    requestor = None
+    provider = None
 
 
 class NodeConfig:
@@ -48,7 +54,7 @@ class NodeId(aenum.AutoEnum):
     This enum holds commonly used nodes names.
     Feel free to extend this enum in your tests that require more nodes.
     """
-    def _generate_next_value_(name, start, count, last_values, *args, **kwds):
+    def _generate_next_value_(name, start, count, last_values):
         return name
 
     requestor
