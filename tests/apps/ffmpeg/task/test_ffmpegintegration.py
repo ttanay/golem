@@ -135,12 +135,17 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls._ffprobe_report_set = FfprobeReportSet()
+
+        cls._ffprobe_report_set = None
+        # Uncomment this enable report generation:
+        #cls._ffprobe_report_set = FfprobeReportSet()
 
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
-        print(cls._ffprobe_report_set.to_markdown())
+
+        if cls._ffprobe_report_set is not None:
+            print(cls._ffprobe_report_set.to_markdown())
 
     @parameterized.expand(
         (video_file, video_codec, container)
