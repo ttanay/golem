@@ -44,7 +44,7 @@ def do_split(path_to_stream, parts):
 
 def do_extract_and_split(input_file, parts):
     input_basename = os.path.basename(input_file)
-    [input_stem, input_extension] = os.path.split(input_basename)
+    [input_stem, input_extension] = os.path.splitext(input_basename)
 
     intermediate_file = os.path.join(
         WORK_DIR,
@@ -119,7 +119,7 @@ def do_replace(input_file,
 
 def do_merge_and_replace(input_file, chunks, output_file):
     output_basename = os.path.basename(output_file)
-    [output_stem, output_extension] = os.path.split(output_basename)
+    [output_stem, output_extension] = os.path.splitext(output_basename)
 
     intermediate_file = os.path.join(
         WORK_DIR,
