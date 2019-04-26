@@ -9,11 +9,11 @@ from tests.apps.ffmpeg.task.ffprobe_report import Diff, FfprobeFormatReport, \
 from tests.apps.ffmpeg.task.ffprobe_report_set import FfprobeReportSet
 
 
-FFMPEG_FORMAT_NAMES = {
+CONTAINER_TO_FFMPEG_MUXER = {
     Container.ASF: 'asf',
     Container.FLV: 'flv',
-    Container.M4V: 'm4v',
-    Container.MOV: 'mov',
+    Container.M4V: 'mov,mp4,m4a,3gp,3g2,mj2',
+    Container.MOV: 'mov,mp4,m4a,3gp,3g2,mj2',
     Container.MP4: 'mov,mp4,m4a,3gp,3g2,mj2',
     Container.MPEG: 'mpeg',
     Container.MPG: 'mpeg',
@@ -22,12 +22,12 @@ FFMPEG_FORMAT_NAMES = {
     Container.MKV: 'matroska,webm',
     Container.OGV: 'ogg',
     Container.TS: 'mpegts',
-    Container.VOB: 'vob',
-    Container.WEBM: 'webm',
+    Container.VOB: 'mpeg',
+    Container.WEBM: 'matroska,webm',
     Container.WMV: 'asf',
-    Container.X_3GP: '3gp',
+    Container.X_3GP: 'mov,mp4,m4a,3gp,3g2,mj2',
 }
-assert set(FFMPEG_FORMAT_NAMES) == set(Container)
+assert set(CONTAINER_TO_FFMPEG_MUXER) == set(Container)
 
 
 class SimulatedTranscodingOperation:
@@ -68,7 +68,7 @@ class SimulatedTranscodingOperation:
     def request_container_change(self, new_container: Container):
         self._task_options['output_container'] = new_container
 
-        format_name = FFMPEG_FORMAT_NAMES[new_container]
+        format_name = CONTAINER_TO_FFMPEG_MUXER[new_container]
         self._set_override('format', 'format_name', format_name)
 
     def request_video_codec_change(self, new_codec: VideoCodec):
