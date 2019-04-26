@@ -100,7 +100,7 @@ CONTAINER_SUPPORTED_CODECS = {
     Container.AVI: (
         [
             VideoCodec.FLV1,
-            VideoCodec.H_263,
+            #VideoCodec.H_263, # Only some resolutions are supported
             VideoCodec.H_264,
             VideoCodec.HEVC,
             VideoCodec.MJPEG,
@@ -121,7 +121,7 @@ CONTAINER_SUPPORTED_CODECS = {
     Container.MKV: (
         [
             VideoCodec.FLV1,
-            VideoCodec.H_263,
+            #VideoCodec.H_263, # Only some resolutions are supported
             VideoCodec.H_264,
             VideoCodec.HEVC,
             VideoCodec.MJPEG,
@@ -159,7 +159,7 @@ CONTAINER_SUPPORTED_CODECS = {
     Container.ASF: (
         [
             VideoCodec.FLV1,
-            VideoCodec.H_263,
+            #VideoCodec.H_263, # Only some resolutions are supported
             VideoCodec.H_264,
             #VideoCodec.HEVC,  # ffmpeg complains about incorrect codec params
             VideoCodec.MJPEG,
@@ -201,7 +201,7 @@ CONTAINER_SUPPORTED_CODECS = {
     Container.MOV: (
         [
             VideoCodec.FLV1,   # ffmpeg warns that the file may be unplayable
-            VideoCodec.H_263,
+            #VideoCodec.H_263, # Only some resolutions are supported
             VideoCodec.H_264,
             VideoCodec.HEVC,
             VideoCodec.MJPEG,
@@ -221,7 +221,7 @@ CONTAINER_SUPPORTED_CODECS = {
     Container.MPEG: (
         [
             VideoCodec.FLV1,
-            VideoCodec.H_263,
+            #VideoCodec.H_263, # Only some resolutions are supported
             VideoCodec.H_264,
             VideoCodec.HEVC,
             VideoCodec.MJPEG,
@@ -243,7 +243,7 @@ CONTAINER_SUPPORTED_CODECS = {
     Container.MPG: (
         [
             VideoCodec.FLV1,
-            VideoCodec.H_263,
+            #VideoCodec.H_263, # Only some resolutions are supported
             VideoCodec.H_264,
             VideoCodec.HEVC,
             VideoCodec.MJPEG,
@@ -265,7 +265,7 @@ CONTAINER_SUPPORTED_CODECS = {
     Container.MTS: (
         [
             VideoCodec.FLV1,
-            VideoCodec.H_263,
+            #VideoCodec.H_263, # Only some resolutions are supported
             VideoCodec.H_264,
             VideoCodec.HEVC,
             VideoCodec.MJPEG,
@@ -297,7 +297,7 @@ CONTAINER_SUPPORTED_CODECS = {
     Container.TS: (
         [
             VideoCodec.FLV1,
-            VideoCodec.H_263,
+            #VideoCodec.H_263, # Only some resolutions are supported
             VideoCodec.H_264,
             VideoCodec.HEVC,
             VideoCodec.MJPEG,
@@ -318,7 +318,7 @@ CONTAINER_SUPPORTED_CODECS = {
     Container.WMV: (
         [
             VideoCodec.FLV1,
-            VideoCodec.H_263,
+            #VideoCodec.H_263, # Only some resolutions are supported
             VideoCodec.H_264,
             #VideoCodec.HEVC,   # ffmpeg complains about incorrect codec params
             VideoCodec.MJPEG,
@@ -340,7 +340,7 @@ CONTAINER_SUPPORTED_CODECS = {
     Container.VOB: (
         [
             VideoCodec.FLV1,
-            VideoCodec.H_263,
+            #VideoCodec.H_263, # Only some resolutions are supported
             VideoCodec.H_264,
             VideoCodec.HEVC,
             VideoCodec.MJPEG,
@@ -371,7 +371,7 @@ CONTAINER_SUPPORTED_CODECS = {
     ),
     Container.X_3GP: (
         [
-            VideoCodec.H_263,
+            #VideoCodec.H_263, # Only some resolutions are supported
             VideoCodec.H_264,
             VideoCodec.MPEG_4,
         ],
