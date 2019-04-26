@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional, Tuple
 
 from apps.transcoding.common import VideoCodec, Container
 from tests.apps.ffmpeg.task.ffprobe_report import Diff, FfprobeFormatReport, \
-    FileExcludes, FileOverrides, fuzzy_int_if_possible
+    FileExcludes, FileOverrides, fuzzy_int_if_possible, parse_ffprobe_frame_rate
 from tests.apps.ffmpeg.task.ffprobe_report_set import FfprobeReportSet
 
 
@@ -89,7 +89,11 @@ class SimulatedTranscodingOperation:
 
     def request_frame_rate_change(self, new_frame_rate: str):
         self._video_options['frame_rate'] = new_frame_rate
-        self._set_override('video', 'frame_rate', new_frame_rate)
+        self._set_override(
+            'video',
+            'frame_rate',
+            parse_ffprobe_frame_rate(new_frame_rate),
+        )
 
     def request_subtasks_count(self, new_subtask_count: int):
         self._task_options['subtasks_count'] = new_subtask_count
