@@ -185,6 +185,7 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
         operation.request_container_change(container)
         operation.exclude_from_diff({'video': {'pix_fmt'}})
         operation.exclude_from_diff({'audio': {'codec_name'}})
+        operation.enable_treating_missing_attributes_as_unchanged()
         (_input_report, _output_report, diff) = operation.run(video_file)
         self.assertEqual(diff, [])
 
@@ -211,6 +212,7 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
         operation.request_resolution_change(resolution)
         operation.exclude_from_diff({'video': {'pix_fmt'}})
         operation.exclude_from_diff({'audio': {'codec_name'}})
+        operation.enable_treating_missing_attributes_as_unchanged()
         (_input_report, _output_report, diff) = operation.run(video_file)
         self.assertEqual(diff, [])
 
@@ -232,6 +234,7 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
         operation.request_frame_rate_change(frame_rate)
         operation.exclude_from_diff({'video': {'pix_fmt'}})
         operation.exclude_from_diff({'audio': {'codec_name'}})
+        operation.enable_treating_missing_attributes_as_unchanged()
         (_input_report, _output_report, diff) = operation.run(video_file)
         self.assertEqual(diff, [])
 
@@ -251,6 +254,7 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
         operation.request_video_bitrate_change(bitrate)
         operation.exclude_from_diff({'video': {'pix_fmt'}})
         operation.exclude_from_diff({'audio': {'codec_name'}})
+        operation.enable_treating_missing_attributes_as_unchanged()
         (_input_report, _output_report, diff) = operation.run(video_file)
         self.assertEqual(diff, [])
 
@@ -272,6 +276,7 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
         operation.request_subtasks_count(subtasks_count)
         operation.exclude_from_diff({'video': {'pix_fmt'}})
         operation.exclude_from_diff({'audio': {'codec_name'}})
+        operation.enable_treating_missing_attributes_as_unchanged()
         (_input_report, _output_report, diff) = operation.run(video_file)
         self.assertEqual(diff, [])
 
