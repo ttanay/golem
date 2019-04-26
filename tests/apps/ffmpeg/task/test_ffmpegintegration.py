@@ -178,6 +178,7 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
         operation.attach_to_report_set(self._ffprobe_report_set)
         operation.request_video_codec_change(video_codec)
         operation.request_container_change(container)
+        operation.exclude_from_diff({'video': {'pix_fmt'}})
         (_input_report, _output_report, diff) = operation.run(video_file)
         self.assertEqual(diff, [])
 
@@ -202,6 +203,7 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
             tmp_dir=self.tempdir)
         operation.attach_to_report_set(self._ffprobe_report_set)
         operation.request_resolution_change(resolution)
+        operation.exclude_from_diff({'video': {'pix_fmt'}})
         (_input_report, _output_report, diff) = operation.run(video_file)
         self.assertEqual(diff, [])
 
@@ -221,6 +223,7 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
             tmp_dir=self.tempdir)
         operation.attach_to_report_set(self._ffprobe_report_set)
         operation.request_frame_rate_change(frame_rate)
+        operation.exclude_from_diff({'video': {'pix_fmt'}})
         (_input_report, _output_report, diff) = operation.run(video_file)
         self.assertEqual(diff, [])
 
@@ -238,6 +241,7 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
             tmp_dir=self.tempdir)
         operation.attach_to_report_set(self._ffprobe_report_set)
         operation.request_video_bitrate_change(bitrate)
+        operation.exclude_from_diff({'video': {'pix_fmt'}})
         (_input_report, _output_report, diff) = operation.run(video_file)
         self.assertEqual(diff, [])
 
@@ -257,6 +261,7 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
             tmp_dir=self.tempdir)
         operation.attach_to_report_set(self._ffprobe_report_set)
         operation.request_subtasks_count(subtasks_count)
+        operation.exclude_from_diff({'video': {'pix_fmt'}})
         (_input_report, _output_report, diff) = operation.run(video_file)
         self.assertEqual(diff, [])
 
