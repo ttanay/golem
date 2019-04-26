@@ -568,7 +568,7 @@ class FfprobeStreamReport:
         )
 
     def __eq__(self, other):
-        return len(self.diff(other, {})) == 0
+        return len(self.diff(other)) == 0
 
     def __repr__(self):
         messages = []
