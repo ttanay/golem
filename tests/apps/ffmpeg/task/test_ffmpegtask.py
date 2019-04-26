@@ -175,12 +175,12 @@ class TestffmpegTask(TempDirFixture):
                 extra_data['track'],
                 os.path.join(
                     DockerJob.RESOURCES_DIR,
-                    'test.video[num=0].m3u8'))
+                    'test.video[video-only]_0.mp4'))
             self.assertEqual(
                 extra_data['output_stream'],
                 os.path.join(
                     DockerJob.OUTPUT_DIR,
-                    'test.video[num=0]_TC.m3u8'))
+                    'test.video[video-only]_0_TC.mp4'))
 
     def test_extra_data(self):
         ffmpeg_task = self._build_ffmpeg_task()
