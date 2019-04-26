@@ -49,6 +49,7 @@ class SimulatedTranscodingOperation:
         }
         self._diff_overrides: FileOverrides = {}
         self._diff_excludes: FileExcludes = {}
+        self._assume_attribute_unchanged_if_missing: bool = False
         self._video_options: Dict[str, Any] = {}
         self._task_options: Dict[str, Any] = {
             'output_container': None,
@@ -104,6 +105,9 @@ class SimulatedTranscodingOperation:
                 self._diff_excludes.get(location, set()) |
                 attributes
             )
+
+    def enable_treating_missing_attributes_as_unchanged(self):
+        self._assume_attribute_unchanged_if_missing = True
 
     def _build_option_description(self):
         if self._task_options['output_container'] is not None:
