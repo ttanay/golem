@@ -8,6 +8,8 @@ from apps.transcoding.common import TranscodingTaskBuilderException, \
 from apps.transcoding.ffmpeg.task import ffmpegTaskTypeInfo
 from apps.transcoding.common import VideoCodec, Container
 from golem.testutils import TestTaskIntegration
+from tests.apps.ffmpeg.task.ffprobe_report import FuzzyDuration, \
+    parse_ffprobe_frame_rate
 from tests.apps.ffmpeg.task.ffprobe_report_set import FfprobeReportSet
 from tests.apps.ffmpeg.task.simulated_transcoding_operation import \
     SimulatedTranscodingOperation
@@ -234,6 +236,8 @@ class TestffmpegIntegration(FfmpegIntegrationTestCase):
         operation.request_frame_rate_change(frame_rate)
         operation.exclude_from_diff({'video': {'pixel_format'}})
         operation.exclude_from_diff({'audio': {'codec_name'}})
+        fuzzy_rate = FuzzyDuration(parse_ffprobe_frame_rate(frame_rate), 0.5)
+        operation.set_override({'video': {'frame_rate': fuzzy_rate}})
         operation.enable_treating_missing_attributes_as_unchanged()
         (_input_report, _output_report, diff) = operation.run(video_file)
         self.assertEqual(diff, [])
