@@ -578,9 +578,9 @@ class FfprobeVideoStreamReport(FfprobeAudioAndVideoStreamReport):
         if not isinstance(value, str):
             return value
 
-        splited = value.split('/')
+        split = value.split('/')
         try:
-            return float(splited[0])/float(splited[1])
+            return float(split[0]) / float(split[1])
         except (ValueError, TypeError):
             return value
 
