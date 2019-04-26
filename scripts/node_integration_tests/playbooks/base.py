@@ -89,7 +89,7 @@ class NodeTestPlaybook:
             if self.config.dump_output_on_fail or (
                     self.config.dump_output_on_crash
                     and self.nodes_exit_codes[node_id] is not None):
-                helpers.print_output(output_queue, node_id.value)
+                helpers.print_output(output_queue, node_id.value + ' ')
 
         self.stop(1)
 
