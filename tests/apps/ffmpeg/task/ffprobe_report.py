@@ -353,7 +353,7 @@ class FfprobeFormatReport:
         return format_differences + stream_differences
 
     def __eq__(self, other):
-        return len(self.diff(other, {})) == 0
+        return len(self.diff(other)) == 0
 
     @classmethod
     def build(cls,
