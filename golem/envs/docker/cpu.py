@@ -230,7 +230,7 @@ class DockerCPURuntime(Runtime):
         # Close STDIN in case it wasn't closed on stop()
         def _close_stdin(res):
             if self._stdin_socket is not None:
-                self._stdin_socket.close()
+                self._close_stdin()
             return res
 
         deferred_cleanup = deferToThread(_cleanup)
@@ -286,7 +286,7 @@ class DockerCPURuntime(Runtime):
 
         def _close_stdin(res):
             if self._stdin_socket is not None:
-                self._stdin_socket.close()
+                self._close_stdin()
             return res
 
         deferred_stop = deferToThread(_stop)
