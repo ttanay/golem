@@ -40,7 +40,7 @@ class Playbook(ConcentTestPlaybook):
             self.fail()
             return
 
-        return super().step_wait_task_finished(node_id=NodeId.requestor)
+        return super().step_wait_task_finished()
 
     def step_verify_forced_download_happened(self):
         if self.forced_download_successful:
@@ -52,15 +52,12 @@ class Playbook(ConcentTestPlaybook):
             )
 
     steps = ConcentTestPlaybook.initial_steps + (
-        partial(ConcentTestPlaybook.step_create_task, node_id=NodeId.requestor),
-        partial(ConcentTestPlaybook.step_get_task_id, node_id=NodeId.requestor),
-        partial(ConcentTestPlaybook.step_get_task_status,
-                node_id=NodeId.requestor),
+        ConcentTestPlaybook.step_create_task,
+        ConcentTestPlaybook.step_get_task_id,
+        ConcentTestPlaybook.step_get_task_status,
         step_wait_task_finished,
         step_verify_forced_download_happened,
         ConcentTestPlaybook.step_verify_output,
-        partial(ConcentTestPlaybook.step_get_subtasks,
-                node_id=NodeId.requestor),
-        partial(ConcentTestPlaybook.step_verify_node_income,
-                node_id=NodeId.provider, from_node=NodeId.requestor),
+        ConcentTestPlaybook.step_get_subtasks,
+        ConcentTestPlaybook.step_verify_node_income,
     )

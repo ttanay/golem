@@ -71,19 +71,17 @@ class Playbook(NodeTestPlaybook):
                              on_success=on_success)
 
     steps: typing.Tuple = NodeTestPlaybook.initial_steps + (
-        partial(NodeTestPlaybook.step_create_task, node_id=NodeId.requestor),
-        partial(NodeTestPlaybook.step_get_task_id, node_id=NodeId.requestor),
-        partial(NodeTestPlaybook.step_get_task_status,
-                node_id=NodeId.requestor),
+        NodeTestPlaybook.step_create_task,
+        NodeTestPlaybook.step_get_task_id,
+        NodeTestPlaybook.step_get_task_status,
         step_wait_subtask_completed,
         step_wait_task_timeout,
         NodeTestPlaybook.step_stop_nodes,
         NodeTestPlaybook.step_restart_nodes,
     ) + NodeTestPlaybook.initial_steps + (
         step_restart_task,
-        partial(NodeTestPlaybook.step_get_task_id, node_id=NodeId.requestor),
-        partial(NodeTestPlaybook.step_get_task_status,
-                node_id=NodeId.requestor),
+        NodeTestPlaybook.step_get_task_id,
+        NodeTestPlaybook.step_get_task_status,
         NodeTestPlaybook.step_wait_task_finished,
         NodeTestPlaybook.step_verify_output,
     )

@@ -58,19 +58,16 @@ class Playbook(NodeTestPlaybook):
 
         partial(NodeTestPlaybook.step_wait_node_gnt, node_id=NodeId.requestor),
 
-        partial(NodeTestPlaybook.step_get_known_tasks,
-                node_id=NodeId.requestor),
+        NodeTestPlaybook.step_get_known_tasks,
     )
 
     steps: typing.Tuple = initial_steps + (
-        partial(NodeTestPlaybook.step_create_task, node_id=NodeId.requestor),
-        partial(NodeTestPlaybook.step_get_task_id, node_id=NodeId.requestor),
-        partial(NodeTestPlaybook.step_get_task_status,
-                node_id=NodeId.requestor),
-        partial(NodeTestPlaybook.step_wait_task_finished,
-                node_id=NodeId.requestor),
+        NodeTestPlaybook.step_create_task,
+        NodeTestPlaybook.step_get_task_id,
+        NodeTestPlaybook.step_get_task_status,
+        NodeTestPlaybook.step_wait_task_finished,
         NodeTestPlaybook.step_verify_output,
-        partial(NodeTestPlaybook.step_get_subtasks, node_id=NodeId.requestor),
+        NodeTestPlaybook.step_get_subtasks,
         partial(step_get_paid_subtasks, node_id=NodeId.provider,
                 from_node=NodeId.requestor),
         partial(step_get_paid_subtasks, node_id=NodeId.provider2,

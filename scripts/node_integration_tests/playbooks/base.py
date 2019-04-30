@@ -221,7 +221,7 @@ class NodeTestPlaybook:
 
         return self.call(node_id, 'net.peers.connected', on_success=on_success)
 
-    def step_get_known_tasks(self, node_id: NodeId):
+    def step_get_known_tasks(self, node_id: NodeId = NodeId.requestor):
         def on_success(result):
             self.known_tasks = set(map(lambda r: r['id'], result))
             print(f"Got current tasks list from the {node_id.value}.")
@@ -229,7 +229,7 @@ class NodeTestPlaybook:
 
         return self.call(node_id, 'comp.tasks', on_success=on_success)
 
-    def step_create_task(self, node_id: NodeId):
+    def step_create_task(self, node_id: NodeId = NodeId.requestor):
         print("Output path: {}".format(self.output_path))
         print("Task dict: {}".format(self.config.task_dict))
 
@@ -253,7 +253,7 @@ class NodeTestPlaybook:
             return self.call(node_id, 'comp.task.create', self.config.task_dict,
                              on_success=on_success)
 
-    def step_get_task_id(self, node_id: NodeId):
+    def step_get_task_id(self, node_id: NodeId = NodeId.requestor):
 
         def on_success(result):
             tasks = set(map(lambda r: r['id'], result))
@@ -268,7 +268,7 @@ class NodeTestPlaybook:
 
         return self.call(node_id, 'comp.tasks', on_success=on_success)
 
-    def step_get_task_status(self, node_id: NodeId):
+    def step_get_task_status(self, node_id: NodeId = NodeId.requestor):
         def on_success(result):
             print("Task status: {}".format(result['status']))
             self.next()
@@ -276,7 +276,7 @@ class NodeTestPlaybook:
         return self.call(node_id, 'comp.task', self.task_id,
                          on_success=on_success)
 
-    def step_wait_task_finished(self, node_id: NodeId):
+    def step_wait_task_finished(self, node_id: NodeId = NodeId.requestor):
         def on_success(result):
             if result['status'] == 'Finished':
                 print("Task finished.")
@@ -306,7 +306,7 @@ class NodeTestPlaybook:
             print("Failed to find the output.")
             self.fail()
 
-    def step_get_subtasks(self, node_id: NodeId):
+    def step_get_subtasks(self, node_id: NodeId = NodeId.requestor):
         def on_success(result):
             self.subtasks = {
                 s.get('subtask_id')
@@ -320,7 +320,9 @@ class NodeTestPlaybook:
         return self.call(node_id, 'comp.task.subtasks', self.task_id,
                          on_success=on_success)
 
-    def step_verify_node_income(self, node_id: NodeId, from_node: NodeId):
+    def step_verify_node_income(self,
+                                node_id: NodeId = NodeId.provider,
+                                from_node: NodeId = NodeId.requestor):
         def on_success(result):
             payments = {
                 p.get('subtask')
@@ -384,18 +386,17 @@ class NodeTestPlaybook:
                 target_node=NodeId.provider),
         partial(step_wait_node_gnt, node_id=NodeId.provider),
         partial(step_wait_node_gnt, node_id=NodeId.requestor),
-        partial(step_get_known_tasks, node_id=NodeId.requestor),
+        step_get_known_tasks,
     )
 
     steps: typing.Tuple = initial_steps + (
-        partial(step_create_task, node_id=NodeId.requestor),
-        partial(step_get_task_id, node_id=NodeId.requestor),
-        partial(step_get_task_status, node_id=NodeId.requestor),
-        partial(step_wait_task_finished, node_id=NodeId.requestor),
+        step_create_task,
+        step_get_task_id,
+        step_get_task_status,
+        step_wait_task_finished,
         step_verify_output,
-        partial(step_get_subtasks, node_id=NodeId.requestor),
-        partial(step_verify_node_income, node_id=NodeId.provider,
-                from_node=NodeId.requestor),
+        step_get_subtasks,
+        step_verify_node_income,
     )
 
     @staticmethod

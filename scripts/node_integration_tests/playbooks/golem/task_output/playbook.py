@@ -40,20 +40,15 @@ class Playbook(NodeTestPlaybook):
         self.next()
 
     steps: typing.Tuple = NodeTestPlaybook.initial_steps + (
-        partial(NodeTestPlaybook.step_create_task, node_id=NodeId.requestor),
-        partial(NodeTestPlaybook.step_get_task_id, node_id=NodeId.requestor),
-        partial(NodeTestPlaybook.step_get_task_status,
-                node_id=NodeId.requestor),
-        partial(NodeTestPlaybook.step_wait_task_finished,
-                node_id=NodeId.requestor),
+        NodeTestPlaybook.step_create_task,
+        NodeTestPlaybook.step_get_task_id,
+        NodeTestPlaybook.step_get_task_status,
+        NodeTestPlaybook.step_wait_task_finished,
         NodeTestPlaybook.step_verify_output,
-        partial(NodeTestPlaybook.step_get_known_tasks,
-                node_id=NodeId.requestor),
-        partial(NodeTestPlaybook.step_create_task, node_id=NodeId.requestor),
-        partial(NodeTestPlaybook.step_get_task_id, node_id=NodeId.requestor),
-        partial(NodeTestPlaybook.step_get_task_status,
-                node_id=NodeId.requestor),
-        partial(NodeTestPlaybook.step_wait_task_finished,
-                node_id=NodeId.requestor),
+        NodeTestPlaybook.step_get_known_tasks,
+        NodeTestPlaybook.step_create_task,
+        NodeTestPlaybook.step_get_task_id,
+        NodeTestPlaybook.step_get_task_status,
+        NodeTestPlaybook.step_wait_task_finished,
         step_verify_separate_output_directories
     )

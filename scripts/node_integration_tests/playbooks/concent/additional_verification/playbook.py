@@ -107,10 +107,9 @@ class Playbook(ConcentTestPlaybook):
             self.fail("Concent verification timed out... ")
 
     steps = ConcentTestPlaybook.initial_steps + (
-        partial(ConcentTestPlaybook.step_create_task, node_id=NodeId.requestor),
-        partial(ConcentTestPlaybook.step_get_task_id, node_id=NodeId.requestor),
-        partial(ConcentTestPlaybook.step_get_task_status,
-                node_id=NodeId.requestor),
+        ConcentTestPlaybook.step_create_task,
+        ConcentTestPlaybook.step_get_task_id,
+        ConcentTestPlaybook.step_get_task_status,
         step_wait_task_started,
         step_wait_task_rejected,
         step_wait_settled,
