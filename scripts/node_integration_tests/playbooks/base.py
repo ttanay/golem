@@ -68,10 +68,7 @@ class NodeTestPlaybook:
 
     @property
     def current_step_method(self):
-        try:
-            return self.steps[self.current_step]
-        except IndexError:
-            return None
+        return self.steps[self.current_step]
 
     @property
     def current_step_name(self) -> str:
@@ -473,12 +470,7 @@ class NodeTestPlaybook:
 
         try:
             method = self.current_step_method
-            if callable(method):
-                return method(self)
-            else:
-                self.fail("Ran out of steps after step {}".format(
-                    self.current_step))
-                return
+            return method(self)
         except Exception as e:  # noqa pylint:disable=too-broad-exception
             e, msg, tb = sys.exc_info()
             print("Exception {}: {} on step {}: {}".format(
