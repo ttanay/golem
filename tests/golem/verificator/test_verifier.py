@@ -6,21 +6,19 @@ from freezegun import freeze_time
 from golem.verificator.verifier import StateVerifier, SubtaskVerificationState
 
 
-@freeze_time()
 class VerifierTest(TestCase):
 
     @staticmethod
     def test_task_timeout():
         subtask_id = 'abcde'
 
-        def callback(*args, **kwargs):
+        with freeze_time():
             time = datetime.utcnow()
 
-            assert kwargs['subtask_id'] == subtask_id
-            assert kwargs['verdict'] == SubtaskVerificationState.TIMEOUT
-            assert kwargs['result']['time_started'] == time
-            assert kwargs['result']['time_ended'] == time
+            sv = StateVerifier()
+            res_subtask_id, res_state, res_answer = sv.task_timeout(subtask_id)
 
-        sv = StateVerifier()
-        sv.callback = callback
-        sv.task_timeout(subtask_id)
+        assert res_subtask_id == subtask_id
+        assert res_state == SubtaskVerificationState.TIMEOUT
+        assert res_answer['time_started'] == time
+        assert res_answer['time_ended'] == time
