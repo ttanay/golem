@@ -4,7 +4,7 @@ from ...test_config_base import (
 
 class TestConfig(TestConfigBase):
     def __init__(self):
-        super().__init__()
+        super().__init__(task_settings='2_short')
         provider_config = make_node_config_from_env(
             NodeId.provider.value.upper(), 1)
         provider_config.script = 'provider/no_wtct_after_ttc'
@@ -14,4 +14,3 @@ class TestConfig(TestConfigBase):
             provider_config,
             provider_config_2,
         ]
-        self.task_settings = '2_short'
