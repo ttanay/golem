@@ -262,7 +262,7 @@ class BlenderTaskTypeInfo(RenderingTaskTypeInfo):
                                                   BlenderRendererOptions,
                                                   BlenderRenderTaskBuilder)
 
-        self.output_formats = ["PNG", "TGA", "EXR", "JPEG", "BMP"]
+        self.output_formats = ["PNG", "TGA", "EXR", "JPG", "BMP"]
         self.output_file_ext = ["blend"]
 
 
@@ -274,7 +274,7 @@ class BlenderNVGPUTaskTypeInfo(RenderingTaskTypeInfo):
                          BlenderNVGPURendererOptions,
                          BlenderNVGPURenderTaskBuilder)
 
-        self.output_formats = ["PNG", "TGA", "EXR", "JPEG", "BMP"]
+        self.output_formats = ["PNG", "TGA", "EXR", "JPG", "BMP"]
         self.output_file_ext = ["blend"]
 
     def for_purpose(self, purpose: TaskPurpose) -> TaskTypeInfo:

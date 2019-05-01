@@ -431,7 +431,7 @@ class TestBlenderTask(TempDirFixture, LogTestCase):
             img.close()
 
     def test_put_img_together_not_exr(self):
-        for output_format in ["PNG", "JPEG", "BMP"]:
+        for output_format in ["PNG", "JPG", "BMP"]:
             self.bt.output_format = output_format.lower()
             for chunks in [1, 5, 7, 11, 13, 31, 57, 100]:
                 res_y = 0
